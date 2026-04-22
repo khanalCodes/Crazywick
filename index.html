@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CrazyWick - Financial Intelligence & Market Analysis</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Admin Login Modal -->
+    <div id="adminLoginModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Admin Access</h2>
+            <input type="password" id="adminPassword" placeholder="Enter admin password">
+            <button onclick="adminLogin()">Login</button>
+        </div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div id="adminPanel" class="admin-panel hidden">
+        <div class="admin-header">
+            <h2>Content Management</h2>
+            <button onclick="closeAdmin()">Close Admin Panel</button>
+        </div>
+        
+        <div class="admin-tabs">
+            <button class="admin-tab active" onclick="switchAdminTab('article')">New Article</button>
+            <button class="admin-tab" onclick="switchAdminTab('journal')">New Journal Entry</button>
+            <button class="admin-tab" onclick="switchAdminTab('prediction')">New Prediction</button>
+            <button class="admin-tab" onclick="switchAdminTab('learning')">New Learning</button>
+        </div>
+
+        <!-- Article Form -->
+        <div id="articleForm" class="admin-form">
+            <h3>Create Article</h3>
+            <input type="text" id="articleTitle" placeholder="Article Title">
+            <input type="text" id="articleCategory" placeholder="Category (e.g., Economics, Politics, Book Review)">
+            <textarea id="articleContent" placeholder="Article content..." rows="10"></textarea>
+            <button onclick="saveArticle()">Publish Article</button>
+        </div>
+
+        <!-- Journal Form -->
+        <div id="journalForm" class="admin-form hidden">
+            <h3>Create Journal Entry</h3>
+            <input type="text" id="journalTitle" placeholder="Trade Title">
+            <select id="journalMarket">
+                <option value="">Select Market</option>
+                <option value="Nepali">Nepali Stock Market (NEPSE)</option>
+                <option value="Indian">Indian Stock Market (NSE/BSE)</option>
+                <option value="Forex">Forex</option>
+                <option value="US">US Markets (NYSE/NASDAQ)</option>
+                <option value="Commodity">Commodity Markets</option>
+            </select>
+            <input type="text" id="journalSymbol" placeholder="Symbol/Ticker (e.g., NABIL, RELIANCE, EUR/USD)">
+            <input type="text" id="journalEntry" placeholder="Entry Price">
+            <input type="text" id="journalExit" placeholder="Exit Price">
+            <input type="text" id="journalSize" placeholder="Position Size">
+            <select id="journalType">
+                <option value="Long">Long</option>
+                <option value="Short">Short</option>
+            </select>
+            <textarea id="journalNotes" placeholder="Trade notes and analysis..." rows="5"></textarea>
+            <input type="file" id="journalImage" accept="image/*" onchange="previewJournalImage(event)">
+            <div id="journalImagePreview"></div>
+            <button onclick="saveJournal()">Save Trade</button>
+        </div>
+
+        <!-- Prediction Form -->
+        <div id="predictionForm" class="admin-form hidden">
+            <h3>Create Prediction</h3>
+            <input type="text" id="predictionTitle" placeholder="Prediction Title">
+            <input type="text" id="predictionSymbol" placeholder="Symbol (e.g., BTC/USD, NIFTY, GOLD)">
+            <input type="text" id="predictionTradingView" placeholder="TradingView Chart ID (e.g., BINANCE:BTCUSDT)">
+            <input type="text" id="predictionTarget" placeholder="Target Price">
+            <input type="text" id="predictionStopLoss" placeholder="Stop Loss">
+            <input type="text" id="predictionTimeframe" placeholder="Timeframe (e.g., 1-2 weeks, Short-term)">
+            <textarea id="predictionAnalysis" placeholder="Your prediction analysis..." rows="6"></textarea>
+            <button onclick="savePrediction()">Publish Prediction</button>
+        </div>
+
+        <!-- Learning Form -->
+        <div id="learningForm" class="admin-form hidden">
+            <h3>Create Learning</h3>
+            <input type="text" id="learningTitle" placeholder="Learning Title">
+            <input type="text" id="learningCategory" placeholder="Category (e.g., Technical Analysis, Risk Management)">
+            <textarea id="learningContent" placeholder="Learning content and explanation..." rows="8"></textarea>
+            <button onclick="saveLearning()">Save Learning</button>
+        </div>
+    </div>
+
+    <!-- Main Header -->
+    <header class="main-header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <h1>CRAZYWICK</h1>
+                    <span class="tagline">Financial Intelligence</span>
+                </div>
+                <nav class="main-nav">
+                    <a href="#articles" onclick="showSection('articles')">Articles</a>
+                    <a href="#journal" onclick="showSection('journal')">Journal</a>
+                    <a href="#predictions" onclick="showSection('predictions')">Predictions</a>
+                    <a href="#learnings" onclick="showSection('learnings')">Learnings</a>
+                    <button class="admin-btn" onclick="openAdminLogin()">Admin</button>
+                </nav>
+            </div>
+        </div>
+        <div class="ticker">
+            <div class="ticker-content">
+                <span>NEPSE: 2,847.32 <span class="up">+1.2%</span></span>
+                <span>NIFTY: 21,453.10 <span class="down">-0.8%</span></span>
+                <span>S&P 500: 5,234.18 <span class="up">+0.5%</span></span>
+                <span>GOLD: $2,342.50 <span class="up">+0.3%</span></span>
+                <span>BTC: $68,234 <span class="up">+2.1%</span></span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Articles Section -->
+    <section id="articles" class="content-section active">
+        <div class="container">
+            <div class="section-header">
+                <h2>Articles</h2>
+                <p>Thoughts on economics, politics, and financial markets</p>
+            </div>
+            <div id="articlesGrid" class="content-grid">
+                <!-- Articles will be loaded here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Journal Section -->
+    <section id="journal" class="content-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Trade Journal</h2>
+                <p>Documented trades across global markets</p>
+            </div>
+            <div class="journal-filters">
+                <button class="filter-btn active" onclick="filterJournal('all')">All Markets</button>
+                <button class="filter-btn" onclick="filterJournal('Nepali')">NEPSE</button>
+                <button class="filter-btn" onclick="filterJournal('Indian')">Indian</button>
+                <button class="filter-btn" onclick="filterJournal('Forex')">Forex</button>
+                <button class="filter-btn" onclick="filterJournal('US')">US</button>
+                <button class="filter-btn" onclick="filterJournal('Commodity')">Commodity</button>
+            </div>
+            <div id="journalGrid" class="journal-grid">
+                <!-- Journal entries will be loaded here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Predictions Section -->
+    <section id="predictions" class="content-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Market Predictions</h2>
+                <p>Technical analysis and price predictions</p>
+            </div>
+            <div id="predictionsGrid" class="predictions-grid">
+                <!-- Predictions will be loaded here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Learnings Section -->
+    <section id="learnings" class="content-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Technical Learnings</h2>
+                <p>Trading concepts and technical knowledge base</p>
+            </div>
+            <div id="learningsGrid" class="learnings-grid">
+                <!-- Learnings will be loaded here -->
+            </div>
+        </div>
+    </section>
+
+    <footer class="main-footer">
+        <div class="container">
+            <p>&copy; 2024 CrazyWick. Financial Intelligence & Market Analysis.</p>
+            <p class="disclaimer">Disclaimer: This is not financial advice. All trades and predictions are for educational purposes only.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
