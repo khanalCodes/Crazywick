@@ -1,5 +1,5 @@
 // Admin password (change this!)
-const ADMIN_PASSWORD = 'crazywick2024';
+const ADMIN_PASSWORD = 'crazywick@100$';
 
 // Initialize storage
 let articles = JSON.parse(localStorage.getItem('articles')) || [];
