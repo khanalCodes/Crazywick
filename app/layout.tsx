@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import '../styles/globals.css'
 import Navbar from '@/components/Navbar'
 import TickerTape from '@/components/TickerTape'
+import { Analytics } from '@vercel/analytics/next'
 
 export const metadata: Metadata = {
   title: "CrazyWick — Financial Intelligence Platform",
@@ -83,6 +84,7 @@ export default function RootLayout({
             Not financial advice. Educational content only.
           </p>
         </footer>
+        <Analytics />
       </body>
     </html>
   )
