@@ -7,13 +7,13 @@ const mainLinks = [
   { href: '/', label: 'Home' },
   { href: '/articles', label: 'Articles' },
   { href: '/predictions', label: 'Predictions' },
-  { href: '/sentiment', label: 'Sentiment' },
+  { href: '/analysis', label: 'Analysis' },
   { href: '/journal', label: 'Journal' },
-  { href: '/setups', label: '🔒 Setups', locked: true },
+  { href: '/setups', label: 'Setups', locked: true },
 ]
 
 const articleCategories = [
-  { href: '/articles/category/spirituality', label: '🧘 Spirituality' },
+  { href: '/articles/category/spirituality', label: 'Spirituality' },
   { href: '/articles/category/institutional-research', label: 'Institutional Research' },
   { href: '/articles/category/company-analysis', label: 'Company Analysis & Valuation' },
   { href: '/articles/category/fintech', label: 'Fintech & Innovation' },
