@@ -29,6 +29,46 @@ export default function ArticlesPage() {
 
   return (
     <div style={{ maxWidth: '800px', margin: '0 auto', padding: '3rem 2rem 6rem' }}>
+
+      {/* 🔥 NEW: Writing Notes Section */}
+      <section style={{
+        marginBottom: '3rem',
+        padding: '1.5rem',
+        border: '1px solid rgba(255,255,255,0.06)',
+        borderRadius: '10px',
+        background: 'var(--bg-card)',
+      }}>
+        <p style={{
+          fontSize: '11px',
+          letterSpacing: '0.1em',
+          textTransform: 'uppercase',
+          color: 'var(--text-dim)',
+          marginBottom: '0.75rem'
+        }}>
+          Writing Notes
+        </p>
+
+        <h2 style={{
+          fontFamily: 'var(--serif)',
+          fontSize: '1.3rem',
+          marginBottom: '0.75rem'
+        }}>
+          Upcoming / Ideas
+        </h2>
+
+        <ul style={{
+          fontSize: '13px',
+          color: 'var(--text-muted)',
+          lineHeight: 1.7,
+          paddingLeft: '1rem'
+        }}>
+          <li>Nepal interest rate cycle breakdown</li>
+          <li>Bitcoin liquidity vs global M2 analysis</li>
+          <li>China trade realignment and supply chain shift</li>
+          <li>S&amp;P 500 structural outlook (macro + flows)</li>
+        </ul>
+      </section>
+
       <div style={{ marginBottom: '3rem' }}>
         <p style={{ fontSize: '11px', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--text-dim)', marginBottom: '0.75rem' }}>
           All writing
