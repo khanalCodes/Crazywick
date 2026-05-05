@@ -8,7 +8,7 @@ const CHARTS = [
     symbol: 'SPX',
     bias: 'bearish' as const,
     lastUpdated: '2026-05-03',
-    image: null, // replace with '/analysis/spx.png' after uploading screenshot
+    image: null as string | null,
     keyLevels: {
       support: ['4,950', '5,000'],
       resistance: ['5,250', '5,400'],
@@ -21,7 +21,7 @@ const CHARTS = [
     symbol: 'BTC',
     bias: 'bullish' as const,
     lastUpdated: '2026-05-01',
-    image: null,
+    image: null as string | null,
     keyLevels: {
       support: ['88,000', '82,000'],
       resistance: ['98,000', '105,000'],
@@ -34,7 +34,7 @@ const CHARTS = [
     symbol: 'GOLD',
     bias: 'bullish' as const,
     lastUpdated: '2026-04-28',
-    image: null,
+    image: null as string | null,
     keyLevels: {
       support: ['2,280', '2,200'],
       resistance: ['2,400', '2,500'],
@@ -47,7 +47,7 @@ const CHARTS = [
     symbol: 'NIFTY',
     bias: 'neutral' as const,
     lastUpdated: '2026-04-25',
-    image: null,
+    image: null as string | null,
     keyLevels: {
       support: ['21,500', '20,800'],
       resistance: ['23,000', '24,000'],
@@ -60,7 +60,7 @@ const CHARTS = [
     symbol: 'NDX',
     bias: 'bearish' as const,
     lastUpdated: '2026-04-22',
-    image: null,
+    image: null as string | null,
     keyLevels: {
       support: ['17,500', '16,800'],
       resistance: ['19,000', '20,000'],
@@ -73,7 +73,7 @@ const CHARTS = [
     symbol: 'USDNPR',
     bias: 'neutral' as const,
     lastUpdated: '2026-04-20',
-    image: null,
+    image: null as string | null,
     keyLevels: {
       support: ['132', '130'],
       resistance: ['135', '137'],
@@ -125,7 +125,6 @@ export default function AnalysisPage() {
               fontWeight: selected.symbol === c.symbol ? 600 : 400,
               cursor: 'pointer',
               fontFamily: 'var(--sans)',
-              transition: 'all 0.15s',
             }}
           >
             {c.asset}
@@ -149,10 +148,11 @@ export default function AnalysisPage() {
             position: 'relative',
           }}>
             {selected.image ? (
-              <img
+              <Image
                 src={selected.image}
                 alt={`${selected.asset} analysis`}
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                fill
+                style={{ objectFit: 'cover' }}
               />
             ) : (
               <div style={{ textAlign: 'center', padding: '2rem' }}>
@@ -161,7 +161,7 @@ export default function AnalysisPage() {
                   {selected.asset} Chart
                 </p>
                 <p style={{ fontSize: '12px', color: '#aaa9a0', lineHeight: 1.6, maxWidth: '260px' }}>
-                  Draw your analysis on TradingView → take a screenshot → save as{' '}
+                  Draw your analysis on TradingView → screenshot → save as{' '}
                   <code style={{ background: '#e8e6e0', padding: '1px 4px', borderRadius: '3px', fontSize: '11px' }}>
                     public/{selected.symbol.toLowerCase()}.png
                   </code>
@@ -171,14 +171,8 @@ export default function AnalysisPage() {
           </div>
 
           {/* Key levels */}
-          <div style={{
-            display: 'grid', gridTemplateColumns: '1fr 1fr',
-            gap: '10px', marginTop: '1rem',
-          }}>
-            <div style={{
-              background: '#f0faf6', border: '1px solid #c3e9d8',
-              borderRadius: '10px', padding: '1rem',
-            }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '1rem' }}>
+            <div style={{ background: '#f0faf6', border: '1px solid #c3e9d8', borderRadius: '10px', padding: '1rem' }}>
               <p style={{ fontSize: '10px', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#0F6E56', marginBottom: '0.5rem' }}>
                 Support
               </p>
@@ -188,10 +182,7 @@ export default function AnalysisPage() {
                 </p>
               ))}
             </div>
-            <div style={{
-              background: '#fef2f2', border: '1px solid #fecaca',
-              borderRadius: '10px', padding: '1rem',
-            }}>
+            <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '10px', padding: '1rem' }}>
               <p style={{ fontSize: '10px', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#991B1B', marginBottom: '0.5rem' }}>
                 Resistance
               </p>
@@ -228,10 +219,7 @@ export default function AnalysisPage() {
           </div>
 
           {/* Thesis */}
-          <div style={{
-            background: '#f7f6f3', border: '1px solid rgba(0,0,0,0.07)',
-            borderRadius: '12px', padding: '1.25rem',
-          }}>
+          <div style={{ background: '#f7f6f3', border: '1px solid rgba(0,0,0,0.07)', borderRadius: '12px', padding: '1.25rem' }}>
             <p style={{ fontSize: '10px', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#aaa9a0', marginBottom: '0.75rem' }}>
               My thesis
             </p>
@@ -241,10 +229,7 @@ export default function AnalysisPage() {
           </div>
 
           {/* Watch for */}
-          <div style={{
-            background: '#fffbf0', border: '1px solid #fde68a',
-            borderRadius: '12px', padding: '1.25rem',
-          }}>
+          <div style={{ background: '#fffbf0', border: '1px solid #fde68a', borderRadius: '12px', padding: '1.25rem' }}>
             <p style={{ fontSize: '10px', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#92400E', marginBottom: '0.75rem' }}>
               ⚡ Watch for
             </p>
@@ -253,9 +238,8 @@ export default function AnalysisPage() {
             </p>
           </div>
 
-          {/* Disclaimer */}
           <p style={{ fontSize: '11px', color: '#aaa9a0', lineHeight: 1.6, padding: '0 0.25rem' }}>
-            This is my personal analysis for documentation purposes. Not financial advice. Always do your own research.
+            Personal analysis for documentation only. Not financial advice.
           </p>
         </div>
       </div>
@@ -267,10 +251,10 @@ export default function AnalysisPage() {
         padding: '1rem 1.5rem',
       }}>
         <p style={{ fontSize: '12px', color: '#6b6b63', fontWeight: 500, marginBottom: '4px' }}>
-          📌 To update your chart screenshot
+          📌 To add your chart screenshot
         </p>
         <p style={{ fontSize: '12px', color: '#aaa9a0', lineHeight: 1.6 }}>
-          Draw on TradingView → screenshot → save to <code style={{ background: '#e8e6e0', padding: '1px 4px', borderRadius: '3px' }}>public/spx.png</code> (or btc.png, gold.png etc.) → update the <code style={{ background: '#e8e6e0', padding: '1px 4px', borderRadius: '3px' }}>image</code> field in the CHARTS array → git push
+          Draw on TradingView → screenshot → save to <code style={{ background: '#e8e6e0', padding: '1px 4px', borderRadius: '3px' }}>public/spx.png</code> → change <code style={{ background: '#e8e6e0', padding: '1px 4px', borderRadius: '3px' }}>image: null</code> to <code style={{ background: '#e8e6e0', padding: '1px 4px', borderRadius: '3px' }}>image: '/spx.png'</code> in the CHARTS array → git push
         </p>
       </div>
     </div>
