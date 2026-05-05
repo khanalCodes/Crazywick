@@ -1,19 +1,19 @@
 import { NextResponse } from 'next/server'
 
 const SYMBOLS = [
-  { label: 'S&P 500', symbol: 'SPX', type: 'index' },
-  { label: 'Nasdaq', symbol: 'NDX', type: 'index' },
-  { label: 'Dow Jones', symbol: 'DJI', type: 'index' },
-  { label: 'Bitcoin', symbol: 'BINANCE:BTCUSDT', type: 'crypto' },
-  { label: 'Ethereum', symbol: 'BINANCE:ETHUSDT', type: 'crypto' },
-  { label: 'Apple', symbol: 'AAPL', type: 'stock' },
-  { label: 'Nvidia', symbol: 'NVDA', type: 'stock' },
-  { label: 'Gold', symbol: 'OANDA:XAUUSD', type: 'forex' },
-  { label: 'Silver', symbol: 'OANDA:XAGUSD', type: 'forex' },
-  { label: 'EUR/USD', symbol: 'OANDA:EUR_USD', type: 'forex' },
-  { label: 'GBP/USD', symbol: 'OANDA:GBP_USD', type: 'forex' },
-  { label: 'USD/JPY', symbol: 'OANDA:USD_JPY', type: 'forex' },
-  { label: 'USD/INR', symbol: 'OANDA:USD_INR', type: 'forex' },
+  { label: 'S&P 500', symbol: 'SPX' },
+  { label: 'Nasdaq', symbol: 'NDX' },
+  { label: 'Dow Jones', symbol: 'DJI' },
+  { label: 'Bitcoin', symbol: 'BINANCE:BTCUSDT' },
+  { label: 'Ethereum', symbol: 'BINANCE:ETHUSDT' },
+  { label: 'Apple', symbol: 'AAPL' },
+  { label: 'Nvidia', symbol: 'NVDA' },
+  { label: 'Meta', symbol: 'META' },
+  { label: 'Google', symbol: 'GOOGL' },
+  { label: 'Microsoft', symbol: 'MSFT' },
+  { label: 'Tesla', symbol: 'TSLA' },
+  { label: 'Amazon', symbol: 'AMZN' },
+  { label: 'Berkshire', symbol: 'BRK.B' },
 ]
 
 const API_KEY = process.env.FINNHUB_API_KEY
