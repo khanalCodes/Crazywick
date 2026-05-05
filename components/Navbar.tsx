@@ -1,6 +1,6 @@
 'use client'
 import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 
 const mainLinks = [
@@ -9,11 +9,11 @@ const mainLinks = [
   { href: '/predictions', label: 'Predictions' },
   { href: '/analysis', label: 'Analysis' },
   { href: '/journal', label: 'Journal' },
-  { href: '/setups', label: 'Setups', locked: true },
+  { href: '/setups', label: '🔒 Setups', locked: true },
 ]
 
 const articleCategories = [
-  { href: '/articles/category/spirituality', label: 'Spirituality' },
+  { href: '/articles/category/spirituality', label: '🧘 Spirituality' },
   { href: '/articles/category/institutional-research', label: 'Institutional Research' },
   { href: '/articles/category/company-analysis', label: 'Company Analysis & Valuation' },
   { href: '/articles/category/fintech', label: 'Fintech & Innovation' },
@@ -26,9 +26,9 @@ const articleCategories = [
 
 export default function Navbar() {
   const path = usePathname()
-  const router = useRouter()
   const [showArticlesMenu, setShowArticlesMenu] = useState(false)
   const [showLockedModal, setShowLockedModal] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
 
   return (
     <>
@@ -40,10 +40,12 @@ export default function Navbar() {
         background: 'rgba(255,255,255,0.95)',
         backdropFilter: 'blur(12px)', zIndex: 100,
       }}>
+        {/* Logo */}
         <Link href="/" style={{ fontFamily: 'var(--serif)', fontSize: '20px', fontWeight: 700, color: '#1a1a18' }}>
           crazy<span style={{ color: '#1D9E75' }}>wick</span>
         </Link>
 
+        {/* Desktop links */}
         <div className="nav-links" style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
           {mainLinks.map(({ href, label, locked }) => {
             if (label === 'Articles') {
@@ -73,11 +75,7 @@ export default function Navbar() {
                         <Link key={cat.href} href={cat.href} style={{
                           display: 'block', padding: '8px 12px',
                           fontSize: '13px', color: '#444', borderRadius: '6px',
-                          whiteSpace: 'nowrap',
-                        }}
-                          onMouseEnter={e => (e.currentTarget.style.background = '#f7f6f3')}
-                          onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-                        >
+                        }}>
                           {cat.label}
                         </Link>
                       ))}
@@ -112,8 +110,78 @@ export default function Navbar() {
           })}
         </div>
 
-        <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#1D9E75', boxShadow: '0 0 8px #1D9E75' }} />
+        {/* Right side */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#1D9E75', boxShadow: '0 0 8px #1D9E75' }} />
+
+          {/* Hamburger button — mobile only */}
+          <button
+            className="hamburger"
+            onClick={() => setMobileOpen(!mobileOpen)}
+            style={{
+              display: 'none',
+              flexDirection: 'column', gap: '5px',
+              background: 'none', border: 'none',
+              cursor: 'pointer', padding: '4px',
+            }}
+          >
+            <span style={{ width: '22px', height: '2px', background: mobileOpen ? '#1D9E75' : '#1a1a18', display: 'block', transition: 'all 0.2s', transform: mobileOpen ? 'rotate(45deg) translateY(7px)' : 'none' }} />
+            <span style={{ width: '22px', height: '2px', background: '#1a1a18', display: 'block', opacity: mobileOpen ? 0 : 1, transition: 'all 0.2s' }} />
+            <span style={{ width: '22px', height: '2px', background: mobileOpen ? '#1D9E75' : '#1a1a18', display: 'block', transition: 'all 0.2s', transform: mobileOpen ? 'rotate(-45deg) translateY(-7px)' : 'none' }} />
+          </button>
+        </div>
       </nav>
+
+      {/* Mobile menu */}
+      {mobileOpen && (
+        <div style={{
+          position: 'fixed', top: '60px', left: 0, right: 0,
+          background: '#fff', borderBottom: '1px solid rgba(0,0,0,0.08)',
+          zIndex: 99, padding: '1rem 1.5rem 1.5rem',
+          boxShadow: '0 8px 30px rgba(0,0,0,0.08)',
+        }}>
+          {mainLinks.map(({ href, label, locked }) => {
+            if (locked) {
+              return (
+                <button key={href} onClick={() => { setShowLockedModal(true); setMobileOpen(false) }} style={{
+                  display: 'block', width: '100%', textAlign: 'left',
+                  padding: '12px 0', fontSize: '15px', color: '#aaa',
+                  background: 'none', border: 'none', borderBottom: '1px solid rgba(0,0,0,0.05)',
+                  cursor: 'pointer', fontFamily: 'var(--sans)',
+                }}>
+                  {label}
+                </button>
+              )
+            }
+            return (
+              <Link key={href} href={href} onClick={() => setMobileOpen(false)} style={{
+                display: 'block', padding: '12px 0',
+                fontSize: '15px', fontWeight: path === href ? 600 : 400,
+                color: path === href ? '#1D9E75' : '#1a1a18',
+                borderBottom: '1px solid rgba(0,0,0,0.05)',
+              }}>
+                {label}
+              </Link>
+            )
+          })}
+
+          {/* Mobile article categories */}
+          <div style={{ marginTop: '1rem' }}>
+            <p style={{ fontSize: '10px', letterSpacing: '0.08em', textTransform: 'uppercase', color: '#aaa9a0', marginBottom: '0.75rem' }}>
+              Article categories
+            </p>
+            {articleCategories.map(cat => (
+              <Link key={cat.href} href={cat.href} onClick={() => setMobileOpen(false)} style={{
+                display: 'block', padding: '9px 0',
+                fontSize: '13px', color: '#6b6b63',
+                borderBottom: '1px solid rgba(0,0,0,0.04)',
+              }}>
+                {cat.label}
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Locked modal */}
       {showLockedModal && (
@@ -131,8 +199,7 @@ export default function Navbar() {
               Setups — Coming Soon
             </h2>
             <p style={{ fontSize: '14px', color: '#6b6b63', lineHeight: 1.6, marginBottom: '1.5rem' }}>
-              A curated library of market setups and trading knowledge — built to teach and pass on. 
-              This will be a premium section in the future.
+              A curated library of market setups and trading knowledge — built to teach and pass on. This will be a premium section in the future.
             </p>
             <button onClick={() => setShowLockedModal(false)} style={{
               background: '#1D9E75', color: '#fff', border: 'none',
