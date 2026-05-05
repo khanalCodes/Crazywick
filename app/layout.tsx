@@ -35,8 +35,9 @@ const GA_ID = 'G-JN6TBQ8Y6W'
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <head>
-        {/* Google Analytics (GA4) */}
+      <body style={{ background: '#ffffff', color: '#1a1a18' }}>
+
+        {/* Google Analytics */}
         <Script
           src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
           strategy="afterInteractive"
@@ -46,6 +47,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
+            window.gtag = gtag;
+
             gtag('js', new Date());
 
             gtag('config', '${GA_ID}', {
@@ -53,9 +56,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             });
           `}
         </Script>
-      </head>
 
-      <body style={{ background: '#ffffff', color: '#1a1a18' }}>
         <div aria-hidden="true">
           <TickerTape />
         </div>
@@ -80,6 +81,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             Not financial advice. Educational content only.
           </p>
         </footer>
+
       </body>
     </html>
   )
