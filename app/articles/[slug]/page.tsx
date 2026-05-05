@@ -10,6 +10,13 @@ const CATEGORY_COLORS: Record<string, string> = {
   Analysis: '#534AB7',
   Nepal: '#993556',
   Macro: '#0F6E56',
+  Spirituality: '#7B5EA7',
+  Fintech: '#0E7490',
+  'Economy & Politics': '#92400E',
+  'Book Notes': '#065F46',
+  'Fed & CPI': '#9D174D',
+  'Institutional Research': '#1E3A5F',
+  'Company Analysis': '#14532D',
 }
 
 export async function generateStaticParams() {
@@ -33,36 +40,64 @@ export default function ArticlePage({ params }: { params: { slug: string } }) {
   const color = CATEGORY_COLORS[article.category] ?? '#555'
 
   return (
-    <div style={{ maxWidth: '680px', margin: '0 auto', padding: '3rem 2rem 8rem' }}>
+    <div style={{ maxWidth: '720px', margin: '0 auto', padding: '3rem 2rem 8rem' }}>
+
       {/* Back */}
-      <Link href="/articles" style={{ fontSize: '13px', color: 'var(--text-dim)', display: 'inline-flex', alignItems: 'center', gap: '4px', marginBottom: '2.5rem' }}>
+      <Link href="/articles" style={{
+        fontSize: '13px', color: '#1D9E75',
+        display: 'inline-flex', alignItems: 'center', gap: '4px', marginBottom: '2.5rem',
+      }}>
         ← All articles
       </Link>
 
       {/* Header */}
       <div style={{ marginBottom: '3rem' }}>
         <span style={{
-          fontSize: '10px', fontWeight: 500, letterSpacing: '0.07em', textTransform: 'uppercase',
-          color, padding: '3px 8px', border: `1px solid ${color}44`, borderRadius: '20px',
-          display: 'inline-block', marginBottom: '1.25rem',
+          fontSize: '10px', fontWeight: 600, letterSpacing: '0.08em',
+          textTransform: 'uppercase', color,
+          padding: '4px 10px', border: `1px solid ${color}44`,
+          borderRadius: '20px', display: 'inline-block', marginBottom: '1.25rem',
         }}>
           {article.category}
         </span>
+
         <h1 style={{
-          fontFamily: 'var(--serif)', fontSize: 'clamp(1.8rem, 4vw, 2.8rem)',
-          lineHeight: 1.15, marginBottom: '1rem',
+          fontFamily: 'var(--serif)',
+          fontSize: 'clamp(1.8rem, 4vw, 2.8rem)',
+          lineHeight: 1.15, marginBottom: '1rem', color: '#1a1a18',
         }}>
           {article.title}
         </h1>
-        <p style={{ color: 'var(--text-muted)', fontSize: '1.05rem', lineHeight: 1.6, marginBottom: '1.5rem' }}>
+
+        <p style={{ color: '#6b6b63', fontSize: '1.05rem', lineHeight: 1.6, marginBottom: '1.5rem' }}>
           {article.excerpt}
         </p>
-        <div style={{ display: 'flex', gap: '1rem', fontSize: '12px', color: 'var(--text-dim)', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '1rem' }}>
-          <span>{article.date}</span>
-          <span>·</span>
-          <span>{article.readingTime}</span>
-          <span>·</span>
-          <span>CrazyWick</span>
+
+        {/* Author + meta row */}
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: '12px',
+          paddingTop: '1rem', borderTop: '1px solid rgba(0,0,0,0.07)',
+          flexWrap: 'wrap',
+        }}>
+          {/* Author avatar */}
+          <div style={{
+            width: '32px', height: '32px', borderRadius: '50%',
+            background: '#f0faf6', border: '2px solid #c3e9d8',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: '13px', fontWeight: 700, color: '#0F6E56',
+            flexShrink: 0,
+          }}>
+            {article.author.charAt(0).toUpperCase()}
+          </div>
+
+          <div>
+            <p style={{ fontSize: '13px', fontWeight: 500, color: '#1a1a18' }}>
+              {article.author}
+            </p>
+            <p style={{ fontSize: '11px', color: '#aaa9a0' }}>
+              {article.date} · {article.readingTime}
+            </p>
+          </div>
         </div>
       </div>
 
@@ -71,13 +106,13 @@ export default function ArticlePage({ params }: { params: { slug: string } }) {
         <MDXRemote source={article.content} />
       </article>
 
-      {/* Footer */}
+      {/* Disclaimer */}
       <div style={{
-        marginTop: '4rem', padding: '1.5rem', background: 'var(--bg-card)',
-        border: '1px solid rgba(255,255,255,0.07)', borderRadius: '10px',
-        fontSize: '12px', color: 'var(--text-dim)', lineHeight: 1.6,
+        marginTop: '4rem', padding: '1.5rem',
+        background: '#f7f6f3', border: '1px solid rgba(0,0,0,0.07)',
+        borderRadius: '10px', fontSize: '12px', color: '#aaa9a0', lineHeight: 1.6,
       }}>
-        <strong style={{ color: 'var(--text-muted)', display: 'block', marginBottom: '0.25rem' }}>Disclaimer</strong>
+        <strong style={{ color: '#6b6b63', display: 'block', marginBottom: '0.25rem' }}>Disclaimer</strong>
         This article is for educational and informational purposes only. Nothing here constitutes financial advice.
         Always do your own research before making any investment decisions.
       </div>

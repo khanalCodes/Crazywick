@@ -132,8 +132,7 @@ export default function AnalysisPage() {
         ))}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: '1.5rem', alignItems: 'start' }}>
-
+<div className="analysis-grid" style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: '1.5rem', alignItems: 'start' }}>
         {/* Left — chart screenshot */}
         <div>
           <div style={{

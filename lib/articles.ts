@@ -13,6 +13,7 @@ export type Article = {
   excerpt: string
   category: string
   readingTime: string
+  author: string
   content: string
 }
 
@@ -46,6 +47,7 @@ export function getAllArticles(): Article[] {
         date: data.date ?? '',
         excerpt: data.excerpt ?? '',
         category: data.category ?? 'Analysis',
+        author: data.author ?? 'CrazyWick',
         readingTime: readingTime(content).text,
         content,
       }
@@ -65,6 +67,7 @@ export function getArticleBySlug(slug: string): Article | null {
     date: data.date ?? '',
     excerpt: data.excerpt ?? '',
     category: data.category ?? 'Analysis',
+    author: data.author ?? 'CrazyWick',
     readingTime: readingTime(content).text,
     content,
   }
