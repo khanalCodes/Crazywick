@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Script from 'next/script'
 import '../styles/globals.css'
 import Navbar from '@/components/Navbar'
 import TickerTape from '@/components/TickerTape'
@@ -29,15 +30,39 @@ export const metadata: Metadata = {
   },
 }
 
+const GA_ID = 'G-JN6TBQ8Y6W'
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
+      <head>
+        {/* Google Analytics (GA4) */}
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
+          strategy="afterInteractive"
+        />
+
+        <Script id="ga4" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+
+            gtag('config', '${GA_ID}', {
+              page_path: window.location.pathname,
+            });
+          `}
+        </Script>
+      </head>
+
       <body style={{ background: '#ffffff', color: '#1a1a18' }}>
         <div aria-hidden="true">
           <TickerTape />
         </div>
+
         <Navbar />
         <main>{children}</main>
+
         <footer style={{
           borderTop: '1px solid rgba(0,0,0,0.08)',
           padding: '2.5rem 2rem',
