@@ -69,10 +69,10 @@ h1, h2, h3, h4 { font-family: var(--serif); font-weight: 700; line-height: 1.2; 
 
 /* Nav hover effects */
 .nav-link { transition: all 0.15s ease; }
-.nav-link:hover { color: #1a1a18 !important; background: rgba(0,0,0,0.06) !important; }
+.nav-link:hover { color: #1D9E75 !important; background: #f0faf6 !important; }
 
 .dropdown-item { transition: background 0.12s ease; }
-.dropdown-item:hover { background: #f7f6f3 !important; color: #1a1a18 !important; }
+.dropdown-item:hover { background: #f0faf6 !important; color: #1D9E75 !important; }
 
 /* Article card hover */
 .article-card { transition: border-color 0.15s ease, transform 0.15s ease; }

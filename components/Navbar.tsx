@@ -9,11 +9,11 @@ const mainLinks = [
   { href: '/predictions', label: 'Predictions' },
   { href: '/analysis', label: 'Analysis' },
   { href: '/journal', label: 'Journal' },
-  { href: '/setups', label: '🔒 Setups', locked: true },
+  { href: '/setups', label: 'Setups', locked: true },
 ]
 
 const articleCategories = [
-  { href: '/articles/category/spirituality', label: '🧘 Spirituality' },
+  { href: '/articles/category/spirituality', label: 'Spirituality' },
   { href: '/articles/category/institutional-research', label: 'Institutional Research' },
   { href: '/articles/category/company-analysis', label: 'Company Analysis & Valuation' },
   { href: '/articles/category/fintech', label: 'Fintech & Innovation' },
@@ -40,10 +40,10 @@ export default function Navbar() {
           transition: background 0.15s, color 0.15s;
           display: inline-block;
         }
-        .nav-link:hover {
-          background: rgba(0,0,0,0.06) !important;
-          color: #1a1a18 !important;
-        }
+       .nav-link:hover {
+  background: #f0faf6 !important;
+  color: #1D9E75 !important;
+}
         .dropdown-item {
           display: block;
           padding: 8px 12px;
@@ -52,10 +52,10 @@ export default function Navbar() {
           border-radius: 6px;
           transition: background 0.12s, color 0.12s;
         }
-        .dropdown-item:hover {
-          background: #f7f6f3;
-          color: #1a1a18;
-        }
+       .dropdown-item:hover {
+  background: #f0faf6;
+  color: #1D9E75;
+}
         .mobile-link {
           display: block;
           padding: 12px 0;
@@ -101,10 +101,8 @@ export default function Navbar() {
                   onMouseEnter={() => setShowArticlesMenu(true)}
                   onMouseLeave={() => setShowArticlesMenu(false)}
                 >
-                  <Link href={href} className="nav-link" style={{
-                    fontWeight: path.startsWith('/articles') ? 500 : 400,
-                    color: path.startsWith('/articles') ? '#1a1a18' : '#6b6b63',
-                    background: path.startsWith('/articles') ? 'rgba(0,0,0,0.06)' : 'transparent',
+                  <Link key={href} href={href} className={path === href ? 'nav-link nav-link-active' : 'nav-link'} style={{
+  fontWeight: path === href ? 500 : 400,
                     display: 'flex', alignItems: 'center', gap: '4px',
                   }}>
                     Articles ▾
