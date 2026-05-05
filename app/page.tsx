@@ -10,6 +10,11 @@ const CATEGORY_COLORS: Record<string, string> = {
   Macro: '#0F6E56',
   Spirituality: '#7B5EA7',
   Fintech: '#0E7490',
+  'Economy & Politics': '#92400E',
+  'Book Notes': '#065F46',
+  'Fed & CPI': '#9D174D',
+  'Institutional Research': '#1E3A5F',
+  'Company Analysis': '#14532D',
 }
 
 function CategoryBadge({ cat }: { cat: string }) {
@@ -51,19 +56,34 @@ function StatusBadge({ status }: { status: string }) {
   )
 }
 
+// Shuffle array using seed — runs on server, changes on every request
+function shuffleArray<T>(arr: T[]): T[] {
+  const a = [...arr]
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]]
+  }
+  return a
+}
+
+export const dynamic = 'force-dynamic' // re-runs on every request = new random order
+
 export default function HomePage() {
-  const articles = getAllArticles().slice(0, 6)
+  const allArticles = getAllArticles()
   const predictions = getAllPredictions().slice(0, 4)
-  const heroArticles = articles.slice(0, 3)
-  const rest = articles.slice(3)
+
+  // Shuffle on every request
+  const shuffled = shuffleArray(allArticles)
+  const heroArticles = shuffled.slice(0, 3)
+  const rest = shuffled.slice(3, 6)
 
   return (
-    <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 1.5rem 4rem' }}>
+    <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 4rem 4rem' }}>
 
       {/* HERO */}
       <section style={{
         display: 'grid',
-        gridTemplateColumns: '1.1fr 0.9fr',
+        gridTemplateColumns: '1fr 1fr',
         gap: '5rem',
         padding: '5rem 0 4rem',
         borderBottom: '1px solid rgba(0,0,0,0.07)',
@@ -89,15 +109,14 @@ export default function HomePage() {
 
           <h1 style={{
             fontFamily: 'var(--serif)',
-            fontSize: '3.6rem',
+            fontSize: '3.2rem',
             lineHeight: 1.12,
             marginBottom: '1.5rem',
             color: '#1a1a18',
             fontWeight: 700,
             letterSpacing: '-0.5px',
           }}>
-            Finance &amp;{' '}
-            geopolitics,
+            Finance &amp; geopolitics,
             <br />
             <em style={{ color: '#1D9E75', fontStyle: 'italic' }}>
               before the crowd
@@ -131,10 +150,20 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Right — article cards */}
+        {/* Right — random article cards */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          {heroArticles.length === 0 ? (
-            <p style={{ color: '#aaa9a0', fontSize: '13px' }}>Articles will appear here.</p>
+          {allArticles.length === 0 ? (
+            <div style={{
+              background: '#f7f6f3', border: '1px solid rgba(0,0,0,0.07)',
+              borderRadius: '12px', padding: '2rem', textAlign: 'center',
+            }}>
+              <p style={{ color: '#aaa9a0', fontSize: '13px' }}>
+                Your articles will appear here as you write them.
+              </p>
+              <p style={{ color: '#aaa9a0', fontSize: '12px', marginTop: '0.5rem' }}>
+                Add .mdx files to <code style={{ background: '#e8e6e0', padding: '1px 4px', borderRadius: '3px' }}>content/articles/</code>
+              </p>
+            </div>
           ) : heroArticles.map(a => (
             <Link key={a.slug} href={`/articles/${a.slug}`} style={{ display: 'block' }}>
               <div style={{
@@ -167,10 +196,10 @@ export default function HomePage() {
       {rest.length > 0 && (
         <section style={{ padding: '2.5rem 0', borderBottom: '1px solid rgba(0,0,0,0.07)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-            <p style={{ fontSize: '11px', letterSpacing: '0.1em', textTransform: 'uppercase', color: '#aaa9a0' }}>More</p>
+            <p style={{ fontSize: '11px', letterSpacing: '0.1em', textTransform: 'uppercase', color: '#aaa9a0' }}>More reading</p>
             <Link href="/articles" style={{ fontSize: '13px', color: '#1D9E75' }}>All articles →</Link>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '14px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '14px' }}>
             {rest.map(a => (
               <Link key={a.slug} href={`/articles/${a.slug}`} style={{ display: 'block' }}>
                 <div style={{
@@ -178,7 +207,10 @@ export default function HomePage() {
                   borderRadius: '10px', padding: '1.25rem',
                 }}>
                   <CategoryBadge cat={a.category} />
-                  <h3 style={{ fontFamily: 'var(--serif)', fontSize: '1.05rem', lineHeight: 1.35, margin: '6px 0 6px', color: '#1a1a18' }}>
+                  <h3 style={{
+                    fontFamily: 'var(--serif)', fontSize: '1.05rem',
+                    lineHeight: 1.35, margin: '6px 0 6px', color: '#1a1a18',
+                  }}>
                     {a.title}
                   </h3>
                   <p style={{ fontSize: '12px', color: '#aaa9a0' }}>{a.date} · {a.readingTime}</p>
