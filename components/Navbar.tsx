@@ -44,7 +44,7 @@ export default function Navbar() {
           crazy<span style={{ color: '#1D9E75' }}>wick</span>
         </Link>
 
-        <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+        <div className="nav-links" style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
           {mainLinks.map(({ href, label, locked }) => {
             if (label === 'Articles') {
               return (

@@ -56,7 +56,6 @@ function StatusBadge({ status }: { status: string }) {
   )
 }
 
-// Shuffle array using seed — runs on server, changes on every request
 function shuffleArray<T>(arr: T[]): T[] {
   const a = [...arr]
   for (let i = a.length - 1; i > 0; i--) {
@@ -66,22 +65,20 @@ function shuffleArray<T>(arr: T[]): T[] {
   return a
 }
 
-export const dynamic = 'force-dynamic' // re-runs on every request = new random order
+export const dynamic = 'force-dynamic'
 
 export default function HomePage() {
   const allArticles = getAllArticles()
   const predictions = getAllPredictions().slice(0, 4)
-
-  // Shuffle on every request
   const shuffled = shuffleArray(allArticles)
   const heroArticles = shuffled.slice(0, 3)
   const rest = shuffled.slice(3, 6)
 
   return (
-    <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 4rem 4rem' }}>
+    <div className="page-wrapper" style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 4rem 4rem' }}>
 
       {/* HERO */}
-      <section style={{
+      <section className="hero-grid" style={{
         display: 'grid',
         gridTemplateColumns: '1fr 1fr',
         gap: '5rem',
@@ -89,7 +86,6 @@ export default function HomePage() {
         borderBottom: '1px solid rgba(0,0,0,0.07)',
         alignItems: 'center',
       }}>
-
         {/* Left */}
         <div>
           <div style={{
@@ -107,7 +103,7 @@ export default function HomePage() {
             Live Analysis
           </div>
 
-          <h1 style={{
+          <h1 className="hero-heading" style={{
             fontFamily: 'var(--serif)',
             fontSize: '3.2rem',
             lineHeight: 1.12,
@@ -133,7 +129,7 @@ export default function HomePage() {
             Deep-dive articles, market predictions, and geopolitical intelligence — built for people who want to understand the world before they invest in it.
           </p>
 
-          <div style={{ display: 'flex', gap: '10px' }}>
+          <div className="hero-buttons" style={{ display: 'flex', gap: '10px' }}>
             <Link href="/articles" style={{
               background: '#1D9E75', color: '#fff',
               padding: '11px 24px', borderRadius: '8px',
@@ -150,7 +146,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Right — random article cards */}
+        {/* Right */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           {allArticles.length === 0 ? (
             <div style={{
@@ -160,26 +156,18 @@ export default function HomePage() {
               <p style={{ color: '#aaa9a0', fontSize: '13px' }}>
                 Your articles will appear here as you write them.
               </p>
-              <p style={{ color: '#aaa9a0', fontSize: '12px', marginTop: '0.5rem' }}>
-                Add .mdx files to <code style={{ background: '#e8e6e0', padding: '1px 4px', borderRadius: '3px' }}>content/articles/</code>
-              </p>
             </div>
           ) : heroArticles.map(a => (
             <Link key={a.slug} href={`/articles/${a.slug}`} style={{ display: 'block' }}>
               <div style={{
-                background: '#f7f6f3',
-                border: '1px solid rgba(0,0,0,0.07)',
-                borderRadius: '12px',
-                padding: '1.1rem 1.4rem',
+                background: '#f7f6f3', border: '1px solid rgba(0,0,0,0.07)',
+                borderRadius: '12px', padding: '1.1rem 1.4rem',
               }}>
                 <CategoryBadge cat={a.category} />
                 <h3 style={{
-                  fontFamily: 'var(--sans)',
-                  fontSize: '14px',
-                  fontWeight: 500,
-                  color: '#1a1a18',
-                  lineHeight: 1.5,
-                  margin: '6px 0 5px',
+                  fontFamily: 'var(--sans)', fontSize: '14px',
+                  fontWeight: 500, color: '#1a1a18',
+                  lineHeight: 1.5, margin: '6px 0 5px',
                 }}>
                   {a.title}
                 </h3>
@@ -199,7 +187,7 @@ export default function HomePage() {
             <p style={{ fontSize: '11px', letterSpacing: '0.1em', textTransform: 'uppercase', color: '#aaa9a0' }}>More reading</p>
             <Link href="/articles" style={{ fontSize: '13px', color: '#1D9E75' }}>All articles →</Link>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '14px' }}>
+          <div className="articles-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '14px' }}>
             {rest.map(a => (
               <Link key={a.slug} href={`/articles/${a.slug}`} style={{ display: 'block' }}>
                 <div style={{
@@ -232,7 +220,7 @@ export default function HomePage() {
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             {predictions.map(p => (
-              <div key={p.slug} style={{
+              <div key={p.slug} className="prediction-row" style={{
                 background: '#f7f6f3', border: '1px solid rgba(0,0,0,0.06)',
                 borderRadius: '10px', padding: '1rem 1.25rem',
                 display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap',

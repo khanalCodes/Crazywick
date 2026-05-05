@@ -49,3 +49,51 @@ h1, h2, h3, h4 { font-family: var(--serif); font-weight: 700; line-height: 1.2; 
 .prose a:hover { border-bottom-color: var(--green); }
 .prose code { background: #f0efe9; padding: 2px 6px; border-radius: 4px; font-size: 0.875rem; }
 .prose hr { border: none; border-top: 1px solid var(--border); margin: 2.5rem 0; }
+
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .hero-grid {
+    grid-template-columns: 1fr !important;
+    gap: 2rem !important;
+    padding: 2.5rem 0 2rem !important;
+  }
+
+  .hero-heading {
+    font-size: 2.2rem !important;
+  }
+
+  .page-wrapper {
+    padding: 0 1.25rem 3rem !important;
+  }
+
+  .articles-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .prediction-row {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.5rem !important;
+  }
+
+  .hero-buttons {
+    flex-direction: column !important;
+  }
+
+  .hero-buttons a {
+    text-align: center !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-heading {
+    font-size: 1.9rem !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .nav-links {
+    display: none !important;
+  }
+}
