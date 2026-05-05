@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server'
 
 const SYMBOLS = [
-  { label: 'S&P 500', symbol: 'SPX' },
-  { label: 'Nasdaq', symbol: 'NDX' },
-  { label: 'Dow Jones', symbol: 'DJI' },
+{ label: 'S&P 500', symbol: 'SPY' },
+{ label: 'Nasdaq', symbol: 'QQQ' },
+{ label: 'Dow Jones', symbol: 'DIA' },
   { label: 'Bitcoin', symbol: 'BINANCE:BTCUSDT' },
   { label: 'Ethereum', symbol: 'BINANCE:ETHUSDT' },
   { label: 'Apple', symbol: 'AAPL' },
