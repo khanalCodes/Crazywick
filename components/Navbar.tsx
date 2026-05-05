@@ -32,6 +32,53 @@ export default function Navbar() {
 
   return (
     <>
+      <style>{`
+        .nav-link {
+          padding: 6px 14px;
+          border-radius: 6px;
+          font-size: 13px;
+          transition: background 0.15s, color 0.15s;
+          display: inline-block;
+        }
+        .nav-link:hover {
+          background: rgba(0,0,0,0.06) !important;
+          color: #1a1a18 !important;
+        }
+        .dropdown-item {
+          display: block;
+          padding: 8px 12px;
+          font-size: 13px;
+          color: #444;
+          border-radius: 6px;
+          transition: background 0.12s, color 0.12s;
+        }
+        .dropdown-item:hover {
+          background: #f7f6f3;
+          color: #1a1a18;
+        }
+        .mobile-link {
+          display: block;
+          padding: 12px 0;
+          font-size: 15px;
+          border-bottom: 1px solid rgba(0,0,0,0.05);
+          transition: color 0.15s;
+        }
+        .mobile-link:hover {
+          color: #1D9E75 !important;
+        }
+        .mobile-cat-link {
+          display: block;
+          padding: 9px 0;
+          font-size: 13px;
+          color: #6b6b63;
+          border-bottom: 1px solid rgba(0,0,0,0.04);
+          transition: color 0.15s;
+        }
+        .mobile-cat-link:hover {
+          color: #1D9E75;
+        }
+      `}</style>
+
       <nav style={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         padding: '0 2rem', height: '60px',
@@ -54,8 +101,7 @@ export default function Navbar() {
                   onMouseEnter={() => setShowArticlesMenu(true)}
                   onMouseLeave={() => setShowArticlesMenu(false)}
                 >
-                  <Link href={href} style={{
-                    padding: '6px 14px', borderRadius: '6px', fontSize: '13px',
+                  <Link href={href} className="nav-link" style={{
                     fontWeight: path.startsWith('/articles') ? 500 : 400,
                     color: path.startsWith('/articles') ? '#1a1a18' : '#6b6b63',
                     background: path.startsWith('/articles') ? 'rgba(0,0,0,0.06)' : 'transparent',
@@ -72,10 +118,7 @@ export default function Navbar() {
                       zIndex: 200,
                     }}>
                       {articleCategories.map(cat => (
-                        <Link key={cat.href} href={cat.href} style={{
-                          display: 'block', padding: '8px 12px',
-                          fontSize: '13px', color: '#444', borderRadius: '6px',
-                        }}>
+                        <Link key={cat.href} href={cat.href} className="dropdown-item">
                           {cat.label}
                         </Link>
                       ))}
@@ -91,6 +134,7 @@ export default function Navbar() {
                   padding: '6px 14px', borderRadius: '6px', fontSize: '13px',
                   fontWeight: 400, color: '#aaa', background: 'transparent',
                   border: 'none', cursor: 'pointer', fontFamily: 'var(--sans)',
+                  transition: 'color 0.15s',
                 }}>
                   {label}
                 </button>
@@ -98,8 +142,7 @@ export default function Navbar() {
             }
 
             return (
-              <Link key={href} href={href} style={{
-                padding: '6px 14px', borderRadius: '6px', fontSize: '13px',
+              <Link key={href} href={href} className="nav-link" style={{
                 fontWeight: path === href ? 500 : 400,
                 color: path === href ? '#1a1a18' : '#6b6b63',
                 background: path === href ? 'rgba(0,0,0,0.06)' : 'transparent',
@@ -113,16 +156,12 @@ export default function Navbar() {
         {/* Right side */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#1D9E75', boxShadow: '0 0 8px #1D9E75' }} />
-
-          {/* Hamburger button — mobile only */}
           <button
             className="hamburger"
             onClick={() => setMobileOpen(!mobileOpen)}
             style={{
-              display: 'none',
-              flexDirection: 'column', gap: '5px',
-              background: 'none', border: 'none',
-              cursor: 'pointer', padding: '4px',
+              display: 'none', flexDirection: 'column', gap: '5px',
+              background: 'none', border: 'none', cursor: 'pointer', padding: '4px',
             }}
           >
             <span style={{ width: '22px', height: '2px', background: mobileOpen ? '#1D9E75' : '#1a1a18', display: 'block', transition: 'all 0.2s', transform: mobileOpen ? 'rotate(45deg) translateY(7px)' : 'none' }} />
@@ -154,28 +193,21 @@ export default function Navbar() {
               )
             }
             return (
-              <Link key={href} href={href} onClick={() => setMobileOpen(false)} style={{
-                display: 'block', padding: '12px 0',
-                fontSize: '15px', fontWeight: path === href ? 600 : 400,
+              <Link key={href} href={href} className="mobile-link" onClick={() => setMobileOpen(false)} style={{
+                fontWeight: path === href ? 600 : 400,
                 color: path === href ? '#1D9E75' : '#1a1a18',
-                borderBottom: '1px solid rgba(0,0,0,0.05)',
               }}>
                 {label}
               </Link>
             )
           })}
 
-          {/* Mobile article categories */}
           <div style={{ marginTop: '1rem' }}>
             <p style={{ fontSize: '10px', letterSpacing: '0.08em', textTransform: 'uppercase', color: '#aaa9a0', marginBottom: '0.75rem' }}>
               Article categories
             </p>
             {articleCategories.map(cat => (
-              <Link key={cat.href} href={cat.href} onClick={() => setMobileOpen(false)} style={{
-                display: 'block', padding: '9px 0',
-                fontSize: '13px', color: '#6b6b63',
-                borderBottom: '1px solid rgba(0,0,0,0.04)',
-              }}>
+              <Link key={cat.href} href={cat.href} className="mobile-cat-link" onClick={() => setMobileOpen(false)}>
                 {cat.label}
               </Link>
             ))}

@@ -106,3 +106,30 @@ h1, h2, h3, h4 { font-family: var(--serif); font-weight: 700; line-height: 1.2; 
     display: flex !important;
   }
 }
+
+/* Hover effects for nav links */
+.nav-link {
+  transition: all 0.15s ease;
+}
+.nav-link:hover {
+  color: #1a1a18 !important;
+  background: rgba(0,0,0,0.06) !important;
+}
+
+/* Hover effects for dropdown items */
+.dropdown-item {
+  transition: background 0.12s ease;
+}
+.dropdown-item:hover {
+  background: #f7f6f3 !important;
+  color: #1a1a18 !important;
+}
+
+/* Hover effects for article cards on homepage */
+.article-card {
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+.article-card:hover {
+  border-color: rgba(0,0,0,0.15) !important;
+  transform: translateY(-2px);
+}
