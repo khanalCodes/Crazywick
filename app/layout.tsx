@@ -52,8 +52,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             gtag('js', new Date());
 
             gtag('config', '${GA_ID}', {
-              page_path: window.location.pathname,
-            });
+  page_path: window.location.pathname,
+  send_page_view: true,
+});
           `}
         </Script>
 
