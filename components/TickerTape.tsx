@@ -31,7 +31,7 @@ export default function TickerTape() {
   }, [])
 
   const items = loading
-    ? Array(10).fill({ label: '...', price: '—', change: '—', up: true })
+    ? Array(10).fill({ label: '...', price: '-', change: '-', up: true })
     : [...tickers, ...tickers]
 
   return (
