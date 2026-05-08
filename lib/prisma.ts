@@ -1,8 +1,11 @@
-import { PrismaClient } from ".prisma/client/default"
+// @ts-ignore
+import pkg from "@prisma/client"
+const { PrismaClient } = pkg
+
 import { PrismaPg } from "@prisma/adapter-pg"
 
 const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined
+  prisma: any
 }
 
 function createPrismaClient() {
