@@ -21,7 +21,6 @@ export async function createArticle(formData: FormData) {
     throw new Error("Missing required fields")
   }
 
-  // Upsert user so they exist in DB
   const user = await prisma.user.upsert({
     where: { email: session.user.email! },
     update: {},
@@ -46,6 +45,51 @@ export async function createArticle(formData: FormData) {
       publishedAt: status === "PUBLISHED" ? new Date() : null,
     },
   })
+
+  revalidatePath("/admin/articles")
+  revalidatePath("/articles")
+  redirect("/admin/articles")
+}
+
+export async function updateArticle(formData: FormData) {
+  const session = await auth()
+  if (!session || session.user.role !== "ADMIN") throw new Error("Unauthorized")
+
+  const id = formData.get("id") as string
+  const title = formData.get("title") as string
+  const slug = formData.get("slug") as string
+  const excerpt = formData.get("excerpt") as string
+  const content = formData.get("content") as string
+  const categoryId = formData.get("categoryId") as string
+  const status = formData.get("status") as string
+  const coverImage = formData.get("coverImage") as string
+
+  await prisma.article.update({
+    where: { id },
+    data: {
+      title,
+      slug,
+      excerpt: excerpt || null,
+      content,
+      categoryId,
+      status: status === "PUBLISHED" ? "PUBLISHED" : "DRAFT",
+      coverImage: coverImage || null,
+      publishedAt: status === "PUBLISHED" ? new Date() : null,
+    },
+  })
+
+  revalidatePath("/admin/articles")
+  revalidatePath("/articles")
+  redirect("/admin/articles")
+}
+
+export async function deleteArticle(formData: FormData) {
+  const session = await auth()
+  if (!session || session.user.role !== "ADMIN") throw new Error("Unauthorized")
+
+  const id = formData.get("id") as string
+
+  await prisma.article.delete({ where: { id } })
 
   revalidatePath("/admin/articles")
   revalidatePath("/articles")

@@ -1,10 +1,4 @@
-import fs from 'fs'
-import path from 'path'
-import matter from 'gray-matter'
-import readingTime from 'reading-time'
-
-const ARTICLES_DIR = path.join(process.cwd(), 'content/articles')
-const PREDICTIONS_DIR = path.join(process.cwd(), 'content/predictions')
+import { prisma } from "@/lib/prisma"
 
 export type Article = {
   slug: string
@@ -17,80 +11,64 @@ export type Article = {
   content: string
 }
 
-export type Prediction = {
-  slug: string
-  title: string
-  date: string
-  asset: string
-  direction: 'bullish' | 'bearish' | 'neutral'
-  target: string
-  timeframe: string
-  status: 'open' | 'correct' | 'incorrect'
-  excerpt: string
-  content: string
+export async function getAllArticles(): Promise<Article[]> {
+  const articles = await prisma.article.findMany({
+    where: { status: "PUBLISHED", deletedAt: null },
+    orderBy: { publishedAt: "desc" },
+    include: { author: true, category: true },
+  })
+
+  return articles.map(a => ({
+    slug: a.slug,
+    title: a.title,
+    date: a.publishedAt?.toISOString() ?? a.createdAt.toISOString(),
+    excerpt: a.excerpt ?? "",
+    category: a.category.name,
+    author: a.author.name ?? "CrazyWick",
+    readingTime: `${Math.ceil(a.content.length / 1000)} min read`,
+    content: a.content,
+  }))
 }
 
-function readDir(dir: string) {
-  if (!fs.existsSync(dir)) return []
-  return fs.readdirSync(dir).filter(f => f.endsWith('.mdx') || f.endsWith('.md'))
-}
+export async function getArticleBySlug(slug: string): Promise<Article | null> {
+  const a = await prisma.article.findUnique({
+    where: { slug },
+    include: { author: true, category: true },
+  })
 
-export function getAllArticles(): Article[] {
-  return readDir(ARTICLES_DIR)
-    .map(filename => {
-      const slug = filename.replace(/\.(mdx|md)$/, '')
-      const raw = fs.readFileSync(path.join(ARTICLES_DIR, filename), 'utf8')
-      const { data, content } = matter(raw)
-      return {
-        slug,
-        title: data.title ?? 'Untitled',
-        date: data.date ?? '',
-        excerpt: data.excerpt ?? '',
-        category: data.category ?? 'Analysis',
-        author: data.author ?? 'CrazyWick',
-        readingTime: readingTime(content).text,
-        content,
-      }
-    })
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-}
+  if (!a) return null
 
-export function getArticleBySlug(slug: string): Article | null {
-  const files = readDir(ARTICLES_DIR)
-  const match = files.find(f => f.startsWith(slug))
-  if (!match) return null
-  const raw = fs.readFileSync(path.join(ARTICLES_DIR, match), 'utf8')
-  const { data, content } = matter(raw)
   return {
-    slug,
-    title: data.title ?? 'Untitled',
-    date: data.date ?? '',
-    excerpt: data.excerpt ?? '',
-    category: data.category ?? 'Analysis',
-    author: data.author ?? 'CrazyWick',
-    readingTime: readingTime(content).text,
-    content,
+    slug: a.slug,
+    title: a.title,
+    date: a.publishedAt?.toISOString() ?? a.createdAt.toISOString(),
+    excerpt: a.excerpt ?? "",
+    category: a.category.name,
+    author: a.author.name ?? "CrazyWick",
+    readingTime: `${Math.ceil(a.content.length / 1000)} min read`,
+    content: a.content,
   }
 }
 
-export function getAllPredictions(): Prediction[] {
-  return readDir(PREDICTIONS_DIR)
-    .map(filename => {
-      const slug = filename.replace(/\.(mdx|md)$/, '')
-      const raw = fs.readFileSync(path.join(PREDICTIONS_DIR, filename), 'utf8')
-      const { data, content } = matter(raw)
-      return {
-        slug,
-        title: data.title ?? 'Untitled',
-        date: data.date ?? '',
-        asset: data.asset ?? '',
-        direction: data.direction ?? 'neutral',
-        target: data.target ?? '',
-        timeframe: data.timeframe ?? '',
-        status: data.status ?? 'open',
-        excerpt: data.excerpt ?? '',
-        content,
-      }
-    })
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+export async function getArticlesByCategory(categorySlug: string): Promise<Article[]> {
+  const articles = await prisma.article.findMany({
+    where: {
+      status: "PUBLISHED",
+      deletedAt: null,
+      category: { slug: categorySlug },
+    },
+    orderBy: { publishedAt: "desc" },
+    include: { author: true, category: true },
+  })
+
+  return articles.map(a => ({
+    slug: a.slug,
+    title: a.title,
+    date: a.publishedAt?.toISOString() ?? a.createdAt.toISOString(),
+    excerpt: a.excerpt ?? "",
+    category: a.category.name,
+    author: a.author.name ?? "CrazyWick",
+    readingTime: `${Math.ceil(a.content.length / 1000)} min read`,
+    content: a.content,
+  }))
 }

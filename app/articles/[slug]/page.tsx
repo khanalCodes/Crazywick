@@ -14,18 +14,19 @@ const CATEGORY_COLORS: Record<string, string> = {
   Fintech: '#0E7490',
   'Economy & Politics': '#92400E',
   'Book Notes': '#065F46',
-  'Fed & CPI': '#9D174D',
+  'Fed & CPI Watch': '#9D174D',
   'Institutional Research': '#1E3A5F',
-  'Company Analysis': '#14532D',
+  'Company Analysis & Valuation': '#14532D',
 }
 
 export async function generateStaticParams() {
-  const articles = getAllArticles()
+  const articles = await getAllArticles()
   return articles.map(a => ({ slug: a.slug }))
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }) {
-  const article = getArticleBySlug(params.slug)
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
+  const article = await getArticleBySlug(slug)
   if (!article) return {}
   return {
     title: `${article.title} — CrazyWick`,
@@ -33,8 +34,9 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   }
 }
 
-export default function ArticlePage({ params }: { params: { slug: string } }) {
-  const article = getArticleBySlug(params.slug)
+export default async function ArticlePage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
+  const article = await getArticleBySlug(slug)
   if (!article) notFound()
 
   const color = CATEGORY_COLORS[article.category] ?? '#555'
@@ -42,15 +44,14 @@ export default function ArticlePage({ params }: { params: { slug: string } }) {
   return (
     <div style={{ maxWidth: '720px', margin: '0 auto', padding: '3rem 2rem 8rem' }}>
 
-      {/* Back */}
       <Link href="/articles" style={{
         fontSize: '13px', color: '#1D9E75',
         display: 'inline-flex', alignItems: 'center', gap: '4px', marginBottom: '2.5rem',
+        textDecoration: 'none',
       }}>
         ← All articles
       </Link>
 
-      {/* Header */}
       <div style={{ marginBottom: '3rem' }}>
         <span style={{
           fontSize: '10px', fontWeight: 600, letterSpacing: '0.08em',
@@ -73,13 +74,11 @@ export default function ArticlePage({ params }: { params: { slug: string } }) {
           {article.excerpt}
         </p>
 
-        {/* Author + meta row */}
         <div style={{
           display: 'flex', alignItems: 'center', gap: '12px',
           paddingTop: '1rem', borderTop: '1px solid rgba(0,0,0,0.07)',
           flexWrap: 'wrap',
         }}>
-          {/* Author avatar */}
           <div style={{
             width: '32px', height: '32px', borderRadius: '50%',
             background: '#f0faf6', border: '2px solid #c3e9d8',
@@ -89,24 +88,19 @@ export default function ArticlePage({ params }: { params: { slug: string } }) {
           }}>
             {article.author.charAt(0).toUpperCase()}
           </div>
-
           <div>
-            <p style={{ fontSize: '13px', fontWeight: 500, color: '#1a1a18' }}>
-              {article.author}
-            </p>
+            <p style={{ fontSize: '13px', fontWeight: 500, color: '#1a1a18' }}>{article.author}</p>
             <p style={{ fontSize: '11px', color: '#aaa9a0' }}>
-              {article.date} · {article.readingTime}
+              {new Date(article.date).toLocaleDateString()} · {article.readingTime}
             </p>
           </div>
         </div>
       </div>
 
-      {/* Content */}
       <article className="prose">
         <MDXRemote source={article.content} />
       </article>
 
-      {/* Disclaimer */}
       <div style={{
         marginTop: '4rem', padding: '1.5rem',
         background: '#f7f6f3', border: '1px solid rgba(0,0,0,0.07)',
