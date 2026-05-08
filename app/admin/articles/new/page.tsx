@@ -43,9 +43,9 @@ export default async function NewArticlePage() {
           ) : (
             <select name="categoryId" required style={inputStyle}>
               <option value="">Select category</option>
-              {categories.map(cat => (
-                <option key={cat.id} value={cat.id}>{cat.name}</option>
-              ))}
+              {categories.map((cat: { id: string; name: string }) => (
+  <option key={cat.id} value={cat.id}>{cat.name}</option>
+))}
             </select>
           )}
         </div>
