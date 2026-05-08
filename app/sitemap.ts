@@ -1,6 +1,9 @@
 import { MetadataRoute } from 'next'
 import { prisma } from '@/lib/prisma'
 
+type ArticleRaw = Awaited<ReturnType<typeof prisma.article.findMany>>[number]
+type PredictionRaw = Awaited<ReturnType<typeof prisma.prediction.findMany>>[number]
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const articles = await prisma.article.findMany({
     where: { status: 'PUBLISHED', deletedAt: null },
@@ -12,12 +15,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     select: { id: true, updatedAt: true },
   })
 
-  const articleUrls = articles.map(a => ({
+  const articleUrls = articles.map((a: ArticleRaw) => ({
     url: `https://crazywick.com/articles/${a.slug}`,
     lastModified: a.updatedAt,
   }))
 
-  const predictionUrls = predictions.map(p => ({
+  const predictionUrls = predictions.map((p: PredictionRaw) => ({
     url: `https://crazywick.com/predictions/${p.id}`,
     lastModified: p.updatedAt,
   }))

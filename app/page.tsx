@@ -31,21 +31,21 @@ function CategoryBadge({ cat }: { cat: string }) {
 
 function DirectionBadge({ dir }: { dir: string }) {
   const map: Record<string, { label: string; color: string }> = {
-    bullish: { label: '▲ Bullish', color: '#1D9E75' },
-    bearish: { label: '▼ Bearish', color: '#E24B4A' },
-    neutral: { label: '◆ Neutral', color: '#888' },
+    BULLISH: { label: '▲ Bullish', color: '#1D9E75' },
+    BEARISH: { label: '▼ Bearish', color: '#E24B4A' },
+    NEUTRAL: { label: '◆ Neutral', color: '#888' },
   }
-  const { label, color } = map[dir] ?? map.neutral
+  const { label, color } = map[dir] ?? map.NEUTRAL
   return <span style={{ fontSize: '11px', color, fontWeight: 500 }}>{label}</span>
 }
 
 function StatusBadge({ status }: { status: string }) {
   const map: Record<string, { label: string; bg: string; color: string }> = {
-    open: { label: 'Open', bg: '#f0faf6', color: '#1D9E75' },
-    correct: { label: '✓ Correct', bg: '#f0faf6', color: '#1D9E75' },
-    incorrect: { label: '✗ Missed', bg: '#fef2f2', color: '#E24B4A' },
+    OPEN: { label: 'Open', bg: '#f0faf6', color: '#1D9E75' },
+    CORRECT: { label: '✓ Correct', bg: '#f0faf6', color: '#1D9E75' },
+    INCORRECT: { label: '✗ Missed', bg: '#fef2f2', color: '#E24B4A' },
   }
-  const s = map[status] ?? map.open
+  const s = map[status] ?? map.OPEN
   return (
     <span style={{
       fontSize: '10px', fontWeight: 500, background: s.bg,
@@ -67,9 +67,9 @@ function shuffleArray<T>(arr: T[]): T[] {
 
 export const dynamic = 'force-dynamic'
 
-export default function HomePage() {
-  const allArticles = getAllArticles()
-  const predictions = getAllPredictions().slice(0, 4)
+export default async function HomePage() {
+  const allArticles = await getAllArticles()
+  const predictions = (await getAllPredictions()).slice(0, 4)
   const shuffled = shuffleArray(allArticles)
   const heroArticles = shuffled.slice(0, 3)
   const rest = shuffled.slice(3, 6)
@@ -157,7 +157,6 @@ export default function HomePage() {
           borderBottom: '1px solid rgba(0,0,0,0.07)',
           alignItems: 'center',
         }}>
-          {/* Left */}
           <div>
             <div style={{
               display: 'inline-flex', alignItems: 'center', gap: '7px',
@@ -191,16 +190,11 @@ export default function HomePage() {
             </p>
 
             <div className="hero-buttons" style={{ display: 'flex', gap: '10px' }}>
-              <Link href="/articles" className="hero-btn-primary">
-                Read articles →
-              </Link>
-              <Link href="/predictions" className="hero-btn-ghost">
-                View predictions
-              </Link>
+              <Link href="/articles" className="hero-btn-primary">Read articles →</Link>
+              <Link href="/predictions" className="hero-btn-ghost">View predictions</Link>
             </div>
           </div>
 
-          {/* Right */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             {allArticles.length === 0 ? (
               <div style={{
@@ -231,7 +225,6 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* More articles */}
         {rest.length > 0 && (
           <section style={{ padding: '2.5rem 0', borderBottom: '1px solid rgba(0,0,0,0.07)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
@@ -257,7 +250,6 @@ export default function HomePage() {
           </section>
         )}
 
-        {/* Predictions */}
         {predictions.length > 0 && (
           <section style={{ padding: '2.5rem 0' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
@@ -268,14 +260,14 @@ export default function HomePage() {
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {predictions.map(p => (
-                <div key={p.slug} className="prediction-row">
+                <div key={p.id} className="prediction-row">
                   <div style={{ flex: 1, minWidth: '200px' }}>
                     <p style={{ fontWeight: 500, fontSize: '14px', color: '#1a1a18', marginBottom: '2px' }}>{p.title}</p>
                     <p style={{ fontSize: '12px', color: '#6b6b63' }}>{p.asset} · {p.timeframe} · Target: {p.target}</p>
                   </div>
                   <DirectionBadge dir={p.direction} />
                   <StatusBadge status={p.status} />
-                  <span style={{ fontSize: '11px', color: '#aaa9a0' }}>{p.date}</span>
+                  <span style={{ fontSize: '11px', color: '#aaa9a0' }}>{p.publishedAt}</span>
                 </div>
               ))}
             </div>

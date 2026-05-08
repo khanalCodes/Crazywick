@@ -3,13 +3,15 @@ import JournalClient from '@/components/JournalClient'
 
 export const dynamic = 'force-dynamic'
 
+type JournalRaw = Awaited<ReturnType<typeof prisma.journalEntry.findMany>>[number]
+
 export default async function JournalPage() {
   const entries = await prisma.journalEntry.findMany({
     where: { deletedAt: null, visibility: 'PUBLIC' },
     orderBy: { openedAt: 'desc' },
   })
 
-  const serialized = entries.map((e: any) => ({
+  const serialized = entries.map((e: JournalRaw) => ({
     id: e.id,
     asset: e.asset,
     market: e.market,
