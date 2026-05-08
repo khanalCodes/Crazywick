@@ -34,7 +34,7 @@ export default async function AdminCategoriesPage() {
         </p>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-          {categories.map(cat => (
+         {categories.map((cat: any) => (
             <div key={cat.id} style={{
               backgroundColor: "#f7f6f3",
               border: "1px solid rgba(0,0,0,0.08)",
