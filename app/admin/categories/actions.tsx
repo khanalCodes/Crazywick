@@ -20,18 +20,19 @@ export async function seedCategories() {
   const session = await auth()
   if (!session || session.user.role !== "ADMIN") throw new Error("Unauthorized")
 
-  for (const [index, cat] of CATEGORIES.entries()) {
-    await prisma.category.upsert({
-      where: { slug: cat.slug },
-      update: {},
-      create: {
-        name: cat.name,
-        slug: cat.slug,
-        sortOrder: index,
-        isActive: true,
-      },
-    })
-  }
+  for (let index = 0; index < CATEGORIES.length; index++) {
+  const cat = CATEGORIES[index]
+  await prisma.category.upsert({
+    where: { slug: cat.slug },
+    update: {},
+    create: {
+      name: cat.name,
+      slug: cat.slug,
+      sortOrder: index,
+      isActive: true,
+    },
+  })
+}
 
   revalidatePath("/admin/categories")
 }
