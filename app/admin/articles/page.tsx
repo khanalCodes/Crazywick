@@ -30,7 +30,7 @@ export default async function AdminArticlesPage() {
         <p style={{ color: "#6b6b63", fontSize: "14px" }}>No articles yet. Write your first one.</p>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-          {articles.map(article => (
+          {articles.map((article: any) => (
             <div key={article.id} style={{
               backgroundColor: "#f7f6f3",
               border: "1px solid rgba(0,0,0,0.08)",

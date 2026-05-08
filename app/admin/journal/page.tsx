@@ -29,7 +29,7 @@ export default async function AdminJournalPage() {
         <p style={{ color: "#6b6b63", fontSize: "14px" }}>No journal entries yet.</p>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-          {entries.map(entry => (
+          {entries.map((entry: any) => (
             <div key={entry.id} style={{
               backgroundColor: "#f7f6f3",
               border: "1px solid rgba(0,0,0,0.08)",

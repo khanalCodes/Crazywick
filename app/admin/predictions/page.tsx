@@ -29,7 +29,7 @@ export default async function AdminPredictionsPage() {
         <p style={{ color: "#6b6b63", fontSize: "14px" }}>No predictions yet.</p>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-          {predictions.map(p => (
+          {predictions.map((p: any) => (
             <div key={p.id} style={{
               backgroundColor: "#f7f6f3",
               border: "1px solid rgba(0,0,0,0.08)",
