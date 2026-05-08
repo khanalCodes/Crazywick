@@ -18,6 +18,17 @@ export async function createPrediction(formData: FormData) {
   const thesis = formData.get("thesis") as string
   const target = formData.get("target") as string
 
+  const user = await prisma.user.upsert({
+    where: { email: session.user.email! },
+    update: {},
+    create: {
+      email: session.user.email!,
+      name: session.user.name ?? null,
+      image: session.user.image ?? null,
+      role: "ADMIN",
+    },
+  })
+
   await prisma.prediction.create({
     data: {
       title,
@@ -28,7 +39,7 @@ export async function createPrediction(formData: FormData) {
       timeframe,
       thesis,
       target: target || null,
-      authorId: session.user.id,
+      authorId: user.id,
       status: "OPEN",
       publishedAt: new Date(),
     },

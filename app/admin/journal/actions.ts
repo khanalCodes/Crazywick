@@ -25,6 +25,17 @@ export async function createJournalEntry(formData: FormData) {
   const visibility = formData.get("visibility") as string
   const openedAt = formData.get("openedAt") as string
 
+  const user = await prisma.user.upsert({
+    where: { email: session.user.email! },
+    update: {},
+    create: {
+      email: session.user.email!,
+      name: session.user.name ?? null,
+      image: session.user.image ?? null,
+      role: "ADMIN",
+    },
+  })
+
   await prisma.journalEntry.create({
     data: {
       asset,
@@ -42,7 +53,7 @@ export async function createJournalEntry(formData: FormData) {
       setup: setup || null,
       visibility: visibility as any,
       openedAt: new Date(openedAt),
-      authorId: session.user.id,
+      authorId: user.id,
     },
   })
 

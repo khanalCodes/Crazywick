@@ -21,6 +21,18 @@ export async function createArticle(formData: FormData) {
     throw new Error("Missing required fields")
   }
 
+  // Upsert user so they exist in DB
+  const user = await prisma.user.upsert({
+    where: { email: session.user.email! },
+    update: {},
+    create: {
+      email: session.user.email!,
+      name: session.user.name ?? null,
+      image: session.user.image ?? null,
+      role: "ADMIN",
+    },
+  })
+
   await prisma.article.create({
     data: {
       title,
@@ -28,7 +40,7 @@ export async function createArticle(formData: FormData) {
       excerpt: excerpt || null,
       content,
       categoryId,
-      authorId: session.user.id,
+      authorId: user.id,
       status: status === "PUBLISHED" ? "PUBLISHED" : "DRAFT",
       coverImage: coverImage || null,
       publishedAt: status === "PUBLISHED" ? new Date() : null,
