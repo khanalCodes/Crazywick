@@ -1,0 +1,1152 @@
+
+// ============================================
+// CRAZYWICK — PRODUCTION PRISMA SCHEMA
+// Database: Neon PostgreSQL
+// ORM: Prisma
+// Deployment: Vercel
+// ============================================
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ============================================
+// ENUMS
+// ============================================
+
+enum Role {
+  ADMIN
+  CREATOR
+  USER
+}
+
+enum ArticleStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+  SCHEDULED
+}
+
+enum ArticleVisibility {
+  PUBLIC
+  PREMIUM
+  UNLISTED
+  PRIVATE
+}
+
+enum PredictionType {
+  MARKET
+  GEOPOLITICAL
+  MACRO
+  CRYPTO
+  COMMODITY
+}
+
+enum PredictionDirection {
+  BULLISH
+  BEARISH
+  NEUTRAL
+  LIKELY
+  UNLIKELY
+  UNCERTAIN
+}
+
+enum PredictionStatus {
+  OPEN
+  CORRECT
+  INCORRECT
+  CANCELLED
+  EXPIRED
+}
+
+enum TradeDirection {
+  LONG
+  SHORT
+}
+
+enum TradeResult {
+  WIN
+  LOSS
+  BREAKEVEN
+  OPEN
+}
+
+enum JournalVisibility {
+  PRIVATE
+  PUBLIC
+  PREMIUM
+}
+
+enum CommentStatus {
+  VISIBLE
+  HIDDEN
+  FLAGGED
+  DELETED
+}
+
+enum SubscriptionPlan {
+  MONTHLY
+  YEARLY
+  LIFETIME
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELLED
+  EXPIRED
+  PAST_DUE
+  TRIALING
+}
+
+enum NotificationType {
+  NEW_ARTICLE
+  NEW_PREDICTION
+  COMMENT_REPLY
+  NEW_FOLLOWER
+  PREDICTION_RESOLVED
+  ASSET_ALERT
+  SYSTEM
+}
+
+enum ReactionType {
+  INSIGHTFUL
+  BULLISH
+  BEARISH
+  DISAGREE
+  LOVE
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+  SHORT_VIDEO
+  CHART_SCREENSHOT
+  AVATAR
+  COVER
+  OG_IMAGE
+}
+
+enum AnalysisBias {
+  BULLISH
+  BEARISH
+  NEUTRAL
+  STRONGLY_BULLISH
+  STRONGLY_BEARISH
+}
+
+enum ThreadStatus {
+  OPEN
+  CLOSED
+  PINNED
+  ARCHIVED
+}
+
+enum ReportReason {
+  MISINFORMATION
+  SPAM
+  INAPPROPRIATE
+  COPYRIGHT
+  OTHER
+}
+
+enum RedirectType {
+  PERMANENT
+  TEMPORARY
+}
+
+enum Market {
+  CRYPTO
+  EQUITY
+  FOREX
+  COMMODITY
+  BONDS
+  REAL_ESTATE
+}
+
+// ============================================
+// USER
+// ============================================
+
+model User {
+  id                String    @id @default(cuid())
+
+  username          String?   @unique
+  email             String    @unique
+  passwordHash      String?
+
+  name              String?
+  image             String?
+
+  role              Role      @default(ADMIN)
+
+  avatar            String?
+  bio               String?
+  location          String?
+  website           String?
+  twitterHandle     String?
+  tradingViewHandle String?
+
+  emailVerified     Boolean   @default(false)
+  emailVerifiedAt   DateTime?
+
+  lastLoginAt       DateTime?
+  loginCount        Int       @default(0)
+
+  credibilityScore   Float    @default(0)
+  predictionAccuracy Float    @default(0)
+  totalPredictions   Int      @default(0)
+  correctPredictions Int      @default(0)
+
+  deletedAt         DateTime?
+
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  // =========================
+  // NEXTAUTH
+  // =========================
+
+  accounts          Account[]
+  sessions          Session[]
+
+  // =========================
+  // CRAZYWICK
+  // =========================
+
+  articles          Article[]
+  predictions       Prediction[]
+  journalEntries    JournalEntry[]
+  analyses          Analysis[]
+  setups            Setup[]
+
+  comments          Comment[]
+  reactions         Reaction[]
+
+  follows           Follow[]         @relation("follower")
+  followers         Follow[]         @relation("following")
+
+  bookmarks         Bookmark[]
+  readHistory       ReadHistory[]
+
+  notifications     Notification[]
+
+  subscription      Subscription?
+  newsletter        Newsletter?
+
+  watchlist         AssetWatchlist[]
+
+  highlights        Highlight[]
+
+  predictionVotes   PredictionVote[]
+
+  threadPosts       ThreadPost[]
+  threads           Thread[]
+
+  reports           Report[]
+
+  media             Media[]
+
+  @@index([email])
+  @@index([username])
+  @@index([role])
+  @@index([deletedAt])
+
+  @@map("users")
+}
+// ============================================
+// CATEGORY
+// ============================================
+
+model Category {
+  id          String     @id @default(cuid())
+  name        String     @unique
+  slug        String     @unique
+  description String?
+  coverImage  String?
+  color       String?
+  icon        String?
+  parentId    String?
+  parent      Category?  @relation("subcategory", fields: [parentId], references: [id])
+  children    Category[] @relation("subcategory")
+
+  metaTitle       String?
+  metaDescription String?
+  noIndex         Boolean @default(false)
+
+  articleCount Int     @default(0)
+  isActive     Boolean @default(true)
+  sortOrder    Int     @default(0)
+
+  deletedAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  articles    Article[]
+  threads     Thread[]
+
+  @@index([slug])
+  @@index([parentId])
+  @@map("categories")
+}
+
+// ============================================
+// ARTICLE
+// ============================================
+
+model Article {
+  id         String            @id @default(cuid())
+  authorId   String
+  author     User              @relation(fields: [authorId], references: [id])
+  categoryId String
+  category   Category          @relation(fields: [categoryId], references: [id])
+  seriesId   String?
+  series     Series?           @relation(fields: [seriesId], references: [id])
+
+  title      String
+  slug       String            @unique
+  excerpt    String?
+  content    String
+  coverImage String?
+  ogImage    String?
+
+  status     ArticleStatus     @default(DRAFT)
+  visibility ArticleVisibility @default(PUBLIC)
+
+  metaTitle       String?
+  metaDescription String?
+  canonicalUrl    String?
+  noIndex         Boolean  @default(false)
+  locale          String   @default("en")
+
+  viewCount     Int      @default(0)
+  readCount     Int      @default(0)
+  readingTime   Int?
+  likeCount     Int      @default(0)
+  commentCount  Int      @default(0)
+  bookmarkCount Int      @default(0)
+  shareCount    Int      @default(0)
+
+  isFeatured    Boolean  @default(false)
+  featuredUntil DateTime?
+  publishedAt   DateTime?
+  scheduledAt   DateTime?
+
+  deletedAt     DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  tags          ArticleTag[]
+  revisions     ArticleRevision[]
+  sources       ArticleSource[]
+  comments      Comment[]
+  reactions     Reaction[]
+  bookmarks     Bookmark[]
+  readHistory   ReadHistory[]
+  highlights    Highlight[]
+  seoMeta       SeoMeta?
+  media         Media[]
+  relatedTo     ArticleRelation[] @relation("article")
+  relatedFrom   ArticleRelation[] @relation("related")
+  prediction    Prediction?
+
+  @@index([slug])
+  @@index([authorId])
+  @@index([categoryId])
+  @@index([status])
+  @@index([visibility])
+  @@index([publishedAt])
+  @@index([isFeatured])
+  @@index([deletedAt])
+  @@map("articles")
+}
+
+// ============================================
+// ARTICLE REVISION
+// ============================================
+
+model ArticleRevision {
+  id        String   @id @default(cuid())
+  articleId String
+  article   Article  @relation(fields: [articleId], references: [id])
+  title     String
+  content   String
+  excerpt   String?
+  version   Int
+  editNote  String?
+  createdAt DateTime @default(now())
+
+  @@index([articleId])
+  @@map("article_revisions")
+}
+
+// ============================================
+// ARTICLE RELATION
+// ============================================
+
+model ArticleRelation {
+  id        String  @id @default(cuid())
+  articleId String
+  article   Article @relation("article", fields: [articleId], references: [id])
+  relatedId String
+  related   Article @relation("related", fields: [relatedId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([articleId, relatedId])
+  @@map("article_relations")
+}
+
+// ============================================
+// ARTICLE SOURCE
+// ============================================
+
+model ArticleSource {
+  id          String   @id @default(cuid())
+  articleId   String
+  article     Article  @relation(fields: [articleId], references: [id])
+  title       String
+  url         String
+  publication String?
+  accessedAt  DateTime?
+  createdAt   DateTime @default(now())
+
+  @@index([articleId])
+  @@map("article_sources")
+}
+
+// ============================================
+// SERIES
+// ============================================
+
+model Series {
+  id          String    @id @default(cuid())
+  title       String
+  slug        String    @unique
+  description String?
+  coverImage  String?
+  isComplete  Boolean   @default(false)
+  deletedAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  articles    Article[]
+
+  @@index([slug])
+  @@map("series")
+}
+
+// ============================================
+// TAG
+// ============================================
+
+model Tag {
+  id        String       @id @default(cuid())
+  name      String       @unique
+  slug      String       @unique
+  color     String?
+  createdAt DateTime     @default(now())
+  articles  ArticleTag[]
+
+  @@index([slug])
+  @@map("tags")
+}
+
+// ============================================
+// ARTICLE TAG
+// ============================================
+
+model ArticleTag {
+  articleId String
+  article   Article  @relation(fields: [articleId], references: [id])
+  tagId     String
+  tag       Tag      @relation(fields: [tagId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@id([articleId, tagId])
+  @@index([articleId])
+  @@index([tagId])
+  @@map("article_tags")
+}
+
+// ============================================
+// PREDICTION
+// ============================================
+
+model Prediction {
+  id             String              @id @default(cuid())
+  authorId       String
+  author         User                @relation(fields: [authorId], references: [id])
+  articleId      String?             @unique
+  article        Article?            @relation(fields: [articleId], references: [id])
+
+  title          String
+  type           PredictionType
+  asset          String
+  direction      PredictionDirection
+  probability    Int?
+  target         String?
+  timeframe      String
+  status         PredictionStatus    @default(OPEN)
+
+  thesis         String
+  confidenceNote String?
+  outcomeNote    String?
+
+  voteCount     Int      @default(0)
+  agreeCount    Int      @default(0)
+  disagreeCount Int      @default(0)
+  viewCount     Int      @default(0)
+
+  publishedAt DateTime  @default(now())
+  resolvedAt  DateTime?
+  deletedAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  evidence  PredictionEvidence[]
+  votes     PredictionVote[]
+  reactions Reaction[]
+  media     Media[]
+
+  @@index([authorId])
+  @@index([type])
+  @@index([status])
+  @@index([asset])
+  @@index([deletedAt])
+  @@map("predictions")
+}
+
+// ============================================
+// PREDICTION EVIDENCE
+// ============================================
+
+model PredictionEvidence {
+  id           String     @id @default(cuid())
+  predictionId String
+  prediction   Prediction @relation(fields: [predictionId], references: [id])
+  title        String
+  description  String
+  url          String?
+  addedAt      DateTime   @default(now())
+
+  @@index([predictionId])
+  @@map("prediction_evidence")
+}
+
+// ============================================
+// PREDICTION VOTE
+// ============================================
+
+model PredictionVote {
+  id           String     @id @default(cuid())
+  predictionId String
+  prediction   Prediction @relation(fields: [predictionId], references: [id])
+  userId       String
+  user         User       @relation(fields: [userId], references: [id])
+  agrees       Boolean
+  createdAt    DateTime   @default(now())
+
+  @@unique([predictionId, userId])
+  @@index([predictionId])
+  @@map("prediction_votes")
+}
+
+// ============================================
+// JOURNAL ENTRY
+// ============================================
+
+model JournalEntry {
+  id           String            @id @default(cuid())
+  authorId     String
+  author       User              @relation(fields: [authorId], references: [id])
+
+  asset        String
+  market       Market
+  direction    TradeDirection
+  setup        String?
+
+  entryPrice   Decimal           @db.Decimal(18, 8)
+  exitPrice    Decimal?          @db.Decimal(18, 8)
+  stopLoss     Decimal?          @db.Decimal(18, 8)
+  takeProfit   Decimal?          @db.Decimal(18, 8)
+  positionSize Decimal?          @db.Decimal(18, 8)
+  fees         Decimal?          @db.Decimal(18, 8)
+  pnl          Decimal?          @db.Decimal(18, 8)
+  riskReward   Float?
+  duration     Int?
+
+  reasoning    String?
+  psychology   String?
+  mistakes     String?
+  lessons      String?
+
+  result       TradeResult       @default(OPEN)
+  visibility   JournalVisibility @default(PRIVATE)
+
+  screenshot   String?
+  openedAt     DateTime
+  closedAt     DateTime?
+  deletedAt    DateTime?
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+
+  @@index([authorId])
+  @@index([asset])
+  @@index([result])
+  @@index([visibility])
+  @@index([deletedAt])
+  @@map("journal_entries")
+}
+
+// ============================================
+// ANALYSIS
+// ============================================
+
+model Analysis {
+  id       String       @id @default(cuid())
+  authorId String
+  author   User         @relation(fields: [authorId], references: [id])
+
+  asset    String
+  symbol   String
+  bias     AnalysisBias
+  thesis   String
+  watchFor String?
+  imageUrl String?
+
+  supportLevels    Json
+  resistanceLevels Json
+  keyLevels        Json?
+
+  viewCount Int     @default(0)
+  isPublic  Boolean @default(true)
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([authorId])
+  @@index([asset])
+  @@index([symbol])
+  @@map("analyses")
+}
+
+// ============================================
+// SETUP
+// ============================================
+
+model Setup {
+  id           String  @id @default(cuid())
+  authorId     String
+  author       User    @relation(fields: [authorId], references: [id])
+
+  name         String
+  slug         String  @unique
+  category     String
+  description  String
+  rules        String
+  winRate      Float?
+  riskLevel    String?
+  exampleImage String?
+  isPremium    Boolean @default(false)
+  isPublished  Boolean @default(false)
+
+  viewCount Int @default(0)
+  likeCount Int @default(0)
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  media Media[]
+
+  @@index([authorId])
+  @@index([slug])
+  @@index([isPremium])
+  @@map("setups")
+}
+
+// ============================================
+// COMMENT
+// ============================================
+
+model Comment {
+  id        String        @id @default(cuid())
+  authorId  String
+  author    User          @relation(fields: [authorId], references: [id])
+  articleId String
+  article   Article       @relation(fields: [articleId], references: [id])
+  parentId  String?
+  parent    Comment?      @relation("replies", fields: [parentId], references: [id])
+  replies   Comment[]     @relation("replies")
+
+  content   String
+  status    CommentStatus @default(VISIBLE)
+  likeCount Int           @default(0)
+  isPinned  Boolean       @default(false)
+
+  editedAt  DateTime?
+  deletedAt DateTime?
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  reactions Reaction[]
+  reports   Report[]
+
+  @@index([articleId])
+  @@index([authorId])
+  @@index([parentId])
+  @@index([deletedAt])
+  @@map("comments")
+}
+
+// ============================================
+// REACTION
+// ============================================
+
+model Reaction {
+  id           String       @id @default(cuid())
+  userId       String
+  user         User         @relation(fields: [userId], references: [id])
+  type         ReactionType
+
+  articleId    String?
+  article      Article?     @relation(fields: [articleId], references: [id])
+  predictionId String?
+  prediction   Prediction?  @relation(fields: [predictionId], references: [id])
+  commentId    String?
+  comment      Comment?     @relation(fields: [commentId], references: [id])
+
+  createdAt    DateTime     @default(now())
+
+  @@unique([userId, type, articleId])
+  @@unique([userId, type, predictionId])
+  @@unique([userId, type, commentId])
+  @@index([articleId])
+  @@index([predictionId])
+  @@index([commentId])
+  @@map("reactions")
+}
+
+// ============================================
+// FOLLOW
+// ============================================
+
+model Follow {
+  id          String   @id @default(cuid())
+  followerId  String
+  follower    User     @relation("follower", fields: [followerId], references: [id])
+  followingId String
+  following   User     @relation("following", fields: [followingId], references: [id])
+  createdAt   DateTime @default(now())
+
+  @@unique([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
+  @@map("follows")
+}
+
+// ============================================
+// BOOKMARK
+// ============================================
+
+model Bookmark {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  articleId String
+  article   Article  @relation(fields: [articleId], references: [id])
+  note      String?
+  createdAt DateTime @default(now())
+
+  @@unique([userId, articleId])
+  @@index([userId])
+  @@map("bookmarks")
+}
+
+// ============================================
+// READ HISTORY
+// ============================================
+
+model ReadHistory {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  articleId   String
+  article     Article  @relation(fields: [articleId], references: [id])
+  readAt      DateTime @default(now())
+  readTime    Int?
+  completed   Boolean  @default(false)
+  scrollDepth Int?
+
+  @@unique([userId, articleId])
+  @@index([userId])
+  @@index([articleId])
+  @@map("read_history")
+}
+
+// ============================================
+// HIGHLIGHT
+// ============================================
+
+model Highlight {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  articleId String
+  article   Article  @relation(fields: [articleId], references: [id])
+  text      String
+  note      String?
+  isPublic  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([articleId])
+  @@map("highlights")
+}
+
+// ============================================
+// ASSET WATCHLIST
+// ============================================
+
+model AssetWatchlist {
+  id                  String   @id @default(cuid())
+  userId              String
+  user                User     @relation(fields: [userId], references: [id])
+  asset               String
+  symbol              String
+  alertOnAnalysis     Boolean  @default(true)
+  alertOnPrediction   Boolean  @default(true)
+  createdAt           DateTime @default(now())
+
+  @@unique([userId, symbol])
+  @@index([userId])
+  @@index([symbol])
+  @@map("asset_watchlist")
+}
+
+// ============================================
+// NOTIFICATION
+// ============================================
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id])
+  type      NotificationType
+  title     String
+  body      String?
+  url       String?
+  isRead    Boolean          @default(false)
+  readAt    DateTime?
+  createdAt DateTime         @default(now())
+
+  @@index([userId])
+  @@index([isRead])
+  @@index([createdAt])
+  @@map("notifications")
+}
+
+// ============================================
+// SUBSCRIPTION
+// ============================================
+
+model Subscription {
+  id                   String             @id @default(cuid())
+  userId               String             @unique
+  user                 User               @relation(fields: [userId], references: [id])
+  plan                 SubscriptionPlan
+  status               SubscriptionStatus
+  stripeCustomerId     String?            @unique
+  stripeSubscriptionId String?            @unique
+  stripePriceId        String?
+  amount               Decimal?           @db.Decimal(10, 2)
+  currency             String             @default("USD")
+  startsAt             DateTime
+  expiresAt            DateTime?
+  cancelledAt          DateTime?
+  trialEndsAt          DateTime?
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+
+  @@index([status])
+  @@index([stripeCustomerId])
+  @@map("subscriptions")
+}
+
+// ============================================
+// NEWSLETTER
+// ============================================
+
+model Newsletter {
+  id             String    @id @default(cuid())
+  userId         String?   @unique
+  user           User?     @relation(fields: [userId], references: [id])
+  email          String    @unique
+  name           String?
+  isActive       Boolean   @default(true)
+  confirmed      Boolean   @default(false)
+  confirmedAt    DateTime?
+  source         String?
+  unsubscribedAt DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([email])
+  @@index([isActive])
+  @@map("newsletter")
+}
+
+// ============================================
+// THREAD
+// ============================================
+
+model Thread {
+  id         String       @id @default(cuid())
+  authorId   String
+  author     User         @relation(fields: [authorId], references: [id])
+  categoryId String
+  category   Category     @relation(fields: [categoryId], references: [id])
+  title      String
+  slug       String       @unique
+  status     ThreadStatus @default(OPEN)
+  isPinned   Boolean      @default(false)
+  viewCount  Int          @default(0)
+  postCount  Int          @default(0)
+  lastPostAt DateTime?
+  deletedAt  DateTime?
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+
+  posts ThreadPost[]
+
+  @@index([authorId])
+  @@index([categoryId])
+  @@index([slug])
+  @@index([status])
+  @@map("threads")
+}
+
+// ============================================
+// THREAD POST
+// ============================================
+
+model ThreadPost {
+  id        String   @id @default(cuid())
+  threadId  String
+  thread    Thread   @relation(fields: [threadId], references: [id])
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id])
+  content   String
+  likeCount Int      @default(0)
+  isPinned  Boolean  @default(false)
+  deletedAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  reports Report[]
+
+  @@index([threadId])
+  @@index([authorId])
+  @@map("thread_posts")
+}
+
+// ============================================
+// MEDIA (universal content layer)
+// ============================================
+
+model Media {
+  id           String    @id @default(cuid())
+  uploadedBy   String
+  user         User      @relation(fields: [uploadedBy], references: [id])
+  url          String
+  type         MediaType
+  altText      String?
+  fileName     String?
+  fileSize     Int?
+  width        Int?
+  height       Int?
+  mimeType     String?
+  duration     Int?
+  thumbnail    String?
+  provider     String?
+
+  articleId    String?
+  article      Article?    @relation(fields: [articleId], references: [id])
+  predictionId String?
+  prediction   Prediction? @relation(fields: [predictionId], references: [id])
+  setupId      String?
+  setup        Setup?      @relation(fields: [setupId], references: [id])
+
+  createdAt    DateTime @default(now())
+
+  @@index([uploadedBy])
+  @@index([type])
+  @@index([articleId])
+  @@index([predictionId])
+  @@index([setupId])
+  @@map("media")
+}
+
+// ============================================
+// SEO META
+// ============================================
+
+model SeoMeta {
+  id                 String   @id @default(cuid())
+  articleId          String?  @unique
+  article            Article? @relation(fields: [articleId], references: [id])
+  title              String?
+  description        String?
+  ogTitle            String?
+  ogDescription      String?
+  ogImage            String?
+  twitterTitle       String?
+  twitterDescription String?
+  twitterImage       String?
+  canonicalUrl       String?
+  noIndex            Boolean  @default(false)
+  noFollow           Boolean  @default(false)
+  structuredData     Json?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@map("seo_meta")
+}
+
+// ============================================
+// REDIRECT
+// ============================================
+
+model Redirect {
+  id        String       @id @default(cuid())
+  fromPath  String       @unique
+  toPath    String
+  type      RedirectType @default(PERMANENT)
+  isActive  Boolean      @default(true)
+  hitCount  Int          @default(0)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  @@index([fromPath])
+  @@map("redirects")
+}
+
+// ============================================
+// REPORT
+// ============================================
+
+model Report {
+  id           String       @id @default(cuid())
+  reporterId   String
+  reporter     User         @relation(fields: [reporterId], references: [id])
+  reason       ReportReason
+  description  String?
+  isResolved   Boolean      @default(false)
+  resolvedAt   DateTime?
+
+  commentId    String?
+  comment      Comment?     @relation(fields: [commentId], references: [id])
+  threadPostId String?
+  threadPost   ThreadPost?  @relation(fields: [threadPostId], references: [id])
+
+  createdAt    DateTime     @default(now())
+
+  @@index([reporterId])
+  @@index([isResolved])
+  @@map("reports")
+}
+
+// ============================================
+// SITE SETTING
+// ============================================
+
+model SiteSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  type      String   @default("string")
+  group     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([key])
+  @@index([group])
+  @@map("site_settings")
+}
+
+// ============================================
+// ANALYTICS EVENT
+// ============================================
+
+model AnalyticsEvent {
+  id         String   @id @default(cuid())
+  type       String
+  userId     String?
+  sessionId  String?
+  targetType String?
+  targetId   String?
+  metadata   Json?
+  userAgent  String?
+  ip         String?
+  country    String?
+  referrer   String?
+  createdAt  DateTime @default(now())
+
+  @@index([type])
+  @@index([userId])
+  @@index([targetType, targetId])
+  @@index([createdAt])
+  @@map("analytics_events")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+
+  userId            String
+
+  type              String
+  provider          String
+  providerAccountId String
+
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+
+  sessionToken String   @unique
+
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+
+  @@map("verification_tokens")
+}

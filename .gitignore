@@ -5,3 +5,8 @@ node_modules/
 .DS_Store
 *.log
 out/
+
+/lib/generated/prisma
+
+.env
+.env.local
