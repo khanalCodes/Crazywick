@@ -1,4 +1,4 @@
-import { auth } from "@/auth"
+import { auth, signOut } from "@/auth"
 import { redirect } from "next/navigation"
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -25,24 +25,39 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           </span>
           <nav style={{ display: "flex", gap: "24px" }}>
             {[
-              { label: "Articles", href: "/admin/articles" },
+              { label: "Articles",    href: "/admin/articles" },
               { label: "Predictions", href: "/admin/predictions" },
-              { label: "Journal", href: "/admin/journal" },
-              { label: "Categories", href: "/admin/categories" },
+              { label: "Journal",     href: "/admin/journal" },
+              { label: "Categories",  href: "/admin/categories" },
+              { label: "Analysis",    href: "/admin/analysis" },
+              { label: "Newsletter",  href: "/admin/newsletter" },
             ].map(link => (
               <a key={link.href} href={link.href} style={{
-                color: "#6b6b63",
-                textDecoration: "none",
-                fontSize: "14px",
-                fontWeight: 500,
+                color: "#6b6b63", textDecoration: "none",
+                fontSize: "14px", fontWeight: 500,
               }}>
                 {link.label}
               </a>
             ))}
           </nav>
         </div>
-        <span style={{ fontSize: "13px", color: "#aaa9a0" }}>{session.user.email}</span>
+
+        <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+          <span style={{ fontSize: "13px", color: "#aaa9a0" }}>{session.user.email}</span>
+          <form action={async () => { "use server"; await signOut({ redirectTo: "/login" }) }}>
+            <button type="submit" style={{
+              fontSize: "13px", fontWeight: 500,
+              color: "#E24B4A", background: "#fef2f2",
+              border: "1px solid #fecaca", borderRadius: "6px",
+              padding: "5px 12px", cursor: "pointer",
+              fontFamily: "DM Sans, sans-serif",
+            }}>
+              Logout
+            </button>
+          </form>
+        </div>
       </div>
+
       <div style={{ padding: "32px" }}>
         {children}
       </div>
