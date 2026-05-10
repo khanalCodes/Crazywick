@@ -1,140 +1,158 @@
-import { prisma } from '@/lib/prisma'
+import { getAllPredictions } from "@/lib/articles"
+import Link from "next/link"
+import PredictionVoteBar from "@/components/PredictionVoteBar"
+import ReactionBar from "@/components/ReactionBar"
 
-function DirectionBadge({ dir }: { dir: string }) {
-  const map: Record<string, { label: string; color: string }> = {
-    BULLISH: { label: '▲ Bullish', color: '#1D9E75' },
-    BEARISH: { label: '▼ Bearish', color: '#E24B4A' },
-    NEUTRAL: { label: '◆ Neutral', color: '#888' },
-    LIKELY: { label: '● Likely', color: '#1D9E75' },
-    UNLIKELY: { label: '● Unlikely', color: '#E24B4A' },
-    UNCERTAIN: { label: '◆ Uncertain', color: '#888' },
-  }
-  const d = map[dir] ?? map.NEUTRAL
-  return <span style={{ fontSize: '11px', color: d.color, fontWeight: 500 }}>{d.label}</span>
+export const metadata = {
+  title: "Predictions — CrazyWick",
+  description: "Documented market and macro predictions with full track record.",
 }
 
-function StatusBadge({ status }: { status: string }) {
-  const map: Record<string, { label: string; bg: string; color: string }> = {
-    OPEN: { label: 'Open', bg: '#f0faf6', color: '#1D9E75' },
-    CORRECT: { label: '✓ Correct', bg: '#f0faf6', color: '#1D9E75' },
-    INCORRECT: { label: '✗ Missed', bg: '#fef2f2', color: '#E24B4A' },
-    CANCELLED: { label: 'Cancelled', bg: '#f7f6f3', color: '#888' },
-    EXPIRED: { label: 'Expired', bg: '#f7f6f3', color: '#888' },
-  }
-  const s = map[status] ?? map.OPEN
-  return (
-    <span style={{ fontSize: '10px', fontWeight: 500, background: s.bg, color: s.color, padding: '2px 8px', borderRadius: '20px' }}>
-      {s.label}
-    </span>
-  )
+const STATUS_STYLES: Record<string, { bg: string; color: string; label: string }> = {
+  OPEN:      { bg: "#fff8e6",        color: "#c07a00",         label: "Open" },
+  CORRECT:   { bg: "#f0faf6",        color: "#1D9E75",         label: "✓ Correct" },
+  INCORRECT: { bg: "#fef0f0",        color: "#E24B4A",         label: "✗ Incorrect" },
+  EXPIRED:   { bg: "var(--card-bg)", color: "var(--text-dim)", label: "Expired" },
+  CANCELLED: { bg: "var(--card-bg)", color: "var(--text-dim)", label: "Cancelled" },
 }
 
-export const dynamic = 'force-dynamic'
+const DIR_COLOR: Record<string, string> = {
+  BULLISH:   "#1D9E75",
+  BEARISH:   "#E24B4A",
+  NEUTRAL:   "#F5A623",
+  LIKELY:    "#1D9E75",
+  UNLIKELY:  "#E24B4A",
+  UNCERTAIN: "#F5A623",
+}
 
 export default async function PredictionsPage() {
-  const predictions = await prisma.prediction.findMany({
-    where: { deletedAt: null },
-    orderBy: { publishedAt: 'desc' },
-  })
+  const predictions = await getAllPredictions()
 
- const market = predictions.filter((p: any) => ['MARKET', 'CRYPTO', 'COMMODITY', 'MACRO'].includes(p.type))
-const geopolitical = predictions.filter((p: any) => p.type === 'GEOPOLITICAL')
+  const resolved = predictions.filter((p) => ["CORRECT", "INCORRECT"].includes(p.status))
+  const correct  = predictions.filter((p) => p.status === "CORRECT").length
+  const accuracy = resolved.length > 0 ? Math.round((correct / resolved.length) * 100) : null
 
   return (
-    <div style={{ maxWidth: '800px', margin: '0 auto', padding: '3rem 2rem 6rem' }}>
-      <div style={{ marginBottom: '3rem' }}>
-        <p style={{ fontSize: '11px', letterSpacing: '0.1em', textTransform: 'uppercase', color: '#aaa9a0', marginBottom: '0.75rem' }}>
-          Track record
-        </p>
-        <h1 style={{ fontFamily: 'var(--serif)', fontSize: '2.5rem', lineHeight: 1.15, marginBottom: '1rem', color: '#1a1a18' }}>
-          Predictions
-        </h1>
-        <p style={{ color: '#6b6b63', fontSize: '1rem', maxWidth: '480px', lineHeight: 1.7 }}>
-          Every call documented before it happens. Win or lose — it's all on record.
-        </p>
+    <main style={{ maxWidth: 900, margin: "0 auto", padding: "48px 24px" }}>
+      <h1 style={{ fontFamily: "Playfair Display, serif", fontSize: 36, fontWeight: 700, color: "var(--text-primary)", marginBottom: 8 }}>
+        Predictions
+      </h1>
+      <p style={{ color: "var(--text-muted)", fontSize: 16, marginBottom: 36, fontFamily: "DM Sans, sans-serif" }}>
+        Every call documented. Full track record, no cherry-picking.
+      </p>
+
+      {/* Stats bar */}
+      <div style={{ display: "flex", gap: 16, marginBottom: 52, flexWrap: "wrap" }}>
+        {[
+          { label: "Total",     value: predictions.length },
+          { label: "Open",      value: predictions.filter((p) => p.status === "OPEN").length },
+          { label: "Correct",   value: correct },
+          { label: "Incorrect", value: predictions.filter((p) => p.status === "INCORRECT").length },
+          { label: "Accuracy",  value: accuracy !== null ? `${accuracy}%` : "—" },
+        ].map((s) => (
+          <div key={s.label} style={{
+            background: "var(--card-bg)", border: "1px solid var(--border)",
+            borderRadius: 10, padding: "16px 24px", minWidth: 110, textAlign: "center",
+          }}>
+            <div style={{ fontSize: 26, fontWeight: 700, color: "var(--text-primary)", fontFamily: "DM Sans, sans-serif" }}>
+              {s.value}
+            </div>
+            <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2, fontFamily: "DM Sans, sans-serif" }}>
+              {s.label}
+            </div>
+          </div>
+        ))}
       </div>
 
       {predictions.length === 0 ? (
-        <p style={{ color: '#aaa9a0', fontSize: '14px' }}>No predictions yet.</p>
+        <p style={{ color: "var(--text-muted)", textAlign: "center", marginTop: 80, fontFamily: "DM Sans, sans-serif" }}>
+          No predictions published yet.
+        </p>
       ) : (
-        <>
-          {market.length > 0 && (
-            <section style={{ marginBottom: '3rem' }}>
-              <p style={{ fontSize: '11px', letterSpacing: '0.1em', textTransform: 'uppercase', color: '#aaa9a0', marginBottom: '1rem' }}>
-                Market & Crypto
-              </p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-               {geopolitical.map((p: any) => (
-                  <div key={p.id} style={{
-                    background: '#f7f6f3', border: '1px solid rgba(0,0,0,0.06)',
-                    borderRadius: '10px', padding: '1.25rem',
-                  }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                      <p style={{ fontWeight: 600, fontSize: '15px', color: '#1a1a18' }}>{p.title}</p>
-                      <StatusBadge status={p.status} />
-                    </div>
-                    <p style={{ fontSize: '13px', color: '#6b6b63', marginBottom: '10px', lineHeight: 1.6 }}>{p.thesis}</p>
-                    <div style={{ display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap' }}>
-                      <DirectionBadge dir={p.direction} />
-                      <span style={{ fontSize: '12px', color: '#aaa9a0' }}>{p.asset}</span>
-                      <span style={{ fontSize: '12px', color: '#aaa9a0' }}>{p.timeframe}</span>
-                      {p.target && <span style={{ fontSize: '12px', color: '#aaa9a0' }}>Target: {p.target}</span>}
-                      {p.probability && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          <div style={{ width: '80px', height: '4px', background: '#e5e5e5', borderRadius: '2px' }}>
-                            <div style={{ width: `${p.probability}%`, height: '100%', background: '#1D9E75', borderRadius: '2px' }} />
-                          </div>
-                          <span style={{ fontSize: '11px', color: '#aaa9a0' }}>{p.probability}%</span>
-                        </div>
-                      )}
-                      <span style={{ fontSize: '11px', color: '#aaa9a0', marginLeft: 'auto' }}>
-                        {new Date(p.publishedAt).toLocaleDateString()}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
-          )}
+        <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+          {predictions.map((p) => {
+            const statusStyle = STATUS_STYLES[p.status] ?? STATUS_STYLES.OPEN
+            return (
+              <Link key={p.id} href={`/predictions/${p.id}`} style={{ textDecoration: "none" }}>
+                <div className="prediction-card" style={{
+                  background: "var(--card-bg)", border: "1px solid var(--border)",
+                  borderRadius: 14, padding: "28px", cursor: "pointer",
+                }}>
 
-          {geopolitical.length > 0 && (
-            <section>
-              <p style={{ fontSize: '11px', letterSpacing: '0.1em', textTransform: 'uppercase', color: '#aaa9a0', marginBottom: '1rem' }}>
-                Geopolitical
-              </p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {geopolitical.map((p: any) => (
-                  <div key={p.id} style={{
-                    background: '#f7f6f3', border: '1px solid rgba(0,0,0,0.06)',
-                    borderRadius: '10px', padding: '1.25rem',
-                  }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                      <p style={{ fontWeight: 600, fontSize: '15px', color: '#1a1a18' }}>{p.title}</p>
-                      <StatusBadge status={p.status} />
-                    </div>
-                    <p style={{ fontSize: '13px', color: '#6b6b63', marginBottom: '10px', lineHeight: 1.6 }}>{p.thesis}</p>
-                    <div style={{ display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap' }}>
-                      <DirectionBadge dir={p.direction} />
-                      <span style={{ fontSize: '12px', color: '#aaa9a0' }}>{p.timeframe}</span>
-                      {p.probability && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          <div style={{ width: '80px', height: '4px', background: '#e5e5e5', borderRadius: '2px' }}>
-                            <div style={{ width: `${p.probability}%`, height: '100%', background: '#1D9E75', borderRadius: '2px' }} />
-                          </div>
-                          <span style={{ fontSize: '11px', color: '#aaa9a0' }}>{p.probability}%</span>
-                        </div>
-                      )}
-                      <span style={{ fontSize: '11px', color: '#aaa9a0', marginLeft: 'auto' }}>
-                        {new Date(p.publishedAt).toLocaleDateString()}
+                  {/* Top row */}
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 10, marginBottom: 14 }}>
+                    <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+                      <span style={{ fontFamily: "DM Sans, sans-serif", fontWeight: 700, fontSize: 16, color: "var(--text-primary)" }}>
+                        {p.asset}
+                      </span>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: DIR_COLOR[p.direction] ?? "var(--text-muted)", fontFamily: "DM Sans, sans-serif" }}>
+                        {p.direction}
+                      </span>
+                      <span style={{
+                        fontSize: 12, padding: "3px 10px", borderRadius: 20, fontWeight: 600,
+                        background: statusStyle.bg, color: statusStyle.color, fontFamily: "DM Sans, sans-serif",
+                      }}>
+                        {statusStyle.label}
+                      </span>
+                      <span style={{
+                        fontSize: 12, padding: "3px 10px", borderRadius: 20,
+                        background: "var(--card-bg)", border: "1px solid var(--border)",
+                        color: "var(--text-muted)", fontFamily: "DM Sans, sans-serif",
+                      }}>
+                        {p.type}
                       </span>
                     </div>
+                    <span style={{ fontSize: 12, color: "var(--text-dim)", fontFamily: "DM Sans, sans-serif" }}>
+                      {new Date(p.publishedAt).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}
+                    </span>
                   </div>
-                ))}
-              </div>
-            </section>
-          )}
-        </>
+
+                  {/* Title + thesis */}
+                  <h3 style={{ fontFamily: "Playfair Display, serif", fontSize: 21, fontWeight: 700, color: "var(--text-primary)", marginBottom: 10 }}>
+                    {p.title}
+                  </h3>
+                  <p style={{ fontFamily: "DM Sans, sans-serif", fontSize: 14, color: "var(--text-muted)", lineHeight: 1.7, marginBottom: 16 }}>
+                    {p.thesis}
+                  </p>
+
+                  {/* Meta */}
+                  <div style={{ display: "flex", gap: 20, fontSize: 13, color: "var(--text-dim)", fontFamily: "DM Sans, sans-serif", flexWrap: "wrap", marginBottom: 16 }}>
+                    <span>⏱ {p.timeframe}</span>
+                    {p.target && <span>🎯 Target: {p.target}</span>}
+                    {p.probability !== null && <span>📊 Confidence: {p.probability}%</span>}
+                    {p.resolvedAt && (
+                      <span>✅ Resolved: {new Date(p.resolvedAt!).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
+                    )}
+                    {p.articleSlug && (
+                      <Link href={`/articles/${p.articleSlug}`} onClick={(e) => e.stopPropagation()} style={{ color: "var(--green-accent)", textDecoration: "none", fontWeight: 600 }}>
+                        Read full thesis →
+                      </Link>
+                    )}
+                  </div>
+
+                  {/* Outcome note */}
+                  {p.outcomeNote && (
+                    <div style={{ marginBottom: 16, padding: "12px 16px", borderRadius: 8, background: "#f0faf6", border: "1px solid var(--green-light-border)", fontSize: 13, color: "var(--green-dark)", fontFamily: "DM Sans, sans-serif" }}>
+                      <strong>Outcome:</strong> {p.outcomeNote}
+                    </div>
+                  )}
+
+                  {/* Vote bar */}
+                  <PredictionVoteBar
+                    predictionId={p.id}
+                    initialAgree={p.agreeCount}
+                    initialDisagree={p.disagreeCount}
+                  />
+
+                  {/* Reactions */}
+                  <ReactionBar predictionId={p.id} />
+
+                </div>
+              </Link>
+            )
+          })}
+        </div>
       )}
-    </div>
+    </main>
   )
 }

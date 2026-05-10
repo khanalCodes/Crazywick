@@ -7,42 +7,43 @@ import { revalidatePath } from "next/cache"
 
 export async function createArticle(formData: FormData) {
   const session = await auth()
-  if (!session || session.user.role !== "ADMIN") throw new Error("Unauthorized")
+  if (!session || (session.user as { role?: string }).role !== "ADMIN") throw new Error("Unauthorized")
 
-  const title = formData.get("title") as string
-  const slug = formData.get("slug") as string
-  const excerpt = formData.get("excerpt") as string
-  const content = formData.get("content") as string
+  const title      = formData.get("title")      as string
+  const slug       = formData.get("slug")       as string
+  const excerpt    = formData.get("excerpt")    as string
+  const content    = formData.get("content")    as string
   const categoryId = formData.get("categoryId") as string
-  const status = formData.get("status") as string
+  const status     = formData.get("status")     as string
   const coverImage = formData.get("coverImage") as string
 
-  if (!title || !slug || !content || !categoryId) {
-    throw new Error("Missing required fields")
-  }
+  if (!title || !slug || !content || !categoryId) throw new Error("Missing required fields")
 
   const user = await prisma.user.upsert({
-    where: { email: session.user.email! },
+    where:  { email: session.user.email! },
     update: {},
     create: {
       email: session.user.email!,
-      name: session.user.name ?? null,
+      name:  session.user.name  ?? null,
       image: session.user.image ?? null,
-      role: "ADMIN",
+      role:  "ADMIN",
     },
   })
+
+  const isPublished = status === "PUBLISHED"
 
   await prisma.article.create({
     data: {
       title,
       slug,
-      excerpt: excerpt || null,
+      excerpt:    excerpt    || null,
       content,
       categoryId,
-      authorId: user.id,
-      status: status === "PUBLISHED" ? "PUBLISHED" : "DRAFT",
+      authorId:   user.id,
+      status:     isPublished ? "PUBLISHED" : "DRAFT",
       coverImage: coverImage || null,
-      publishedAt: status === "PUBLISHED" ? new Date() : null,
+      // FIX: only set publishedAt when publishing, never overwrite if already set
+      publishedAt: isPublished ? new Date() : null,
     },
   })
 
@@ -53,43 +54,56 @@ export async function createArticle(formData: FormData) {
 
 export async function updateArticle(formData: FormData) {
   const session = await auth()
-  if (!session || session.user.role !== "ADMIN") throw new Error("Unauthorized")
+  if (!session || (session.user as { role?: string }).role !== "ADMIN") throw new Error("Unauthorized")
 
-  const id = formData.get("id") as string
-  const title = formData.get("title") as string
-  const slug = formData.get("slug") as string
-  const excerpt = formData.get("excerpt") as string
-  const content = formData.get("content") as string
+  const id         = formData.get("id")         as string
+  const title      = formData.get("title")      as string
+  const slug       = formData.get("slug")       as string
+  const excerpt    = formData.get("excerpt")    as string
+  const content    = formData.get("content")    as string
   const categoryId = formData.get("categoryId") as string
-  const status = formData.get("status") as string
+  const status     = formData.get("status")     as string
   const coverImage = formData.get("coverImage") as string
+
+  const isPublished = status === "PUBLISHED"
+
+  // FIX: if already published keep original publishedAt, don't reset it to now
+  const existing = await prisma.article.findUnique({ where: { id }, select: { publishedAt: true, status: true } })
+  const wasAlreadyPublished = existing?.status === "PUBLISHED" && existing?.publishedAt != null
 
   await prisma.article.update({
     where: { id },
     data: {
       title,
       slug,
-      excerpt: excerpt || null,
+      excerpt:    excerpt    || null,
       content,
       categoryId,
-      status: status === "PUBLISHED" ? "PUBLISHED" : "DRAFT",
+      status:     isPublished ? "PUBLISHED" : "DRAFT",
       coverImage: coverImage || null,
-      publishedAt: status === "PUBLISHED" ? new Date() : null,
+      publishedAt: isPublished
+        ? (wasAlreadyPublished ? existing!.publishedAt : new Date())
+        : null,
     },
   })
 
   revalidatePath("/admin/articles")
   revalidatePath("/articles")
+  revalidatePath(`/articles/${slug}`)
   redirect("/admin/articles")
 }
 
 export async function deleteArticle(formData: FormData) {
   const session = await auth()
-  if (!session || session.user.role !== "ADMIN") throw new Error("Unauthorized")
+  if (!session || (session.user as { role?: string }).role !== "ADMIN") throw new Error("Unauthorized")
 
   const id = formData.get("id") as string
 
-  await prisma.article.delete({ where: { id } })
+  // Soft delete — keeps data, removes from public queries
+  await prisma.article.update({
+    where: { id },
+    data: { deletedAt: new Date(), status: "ARCHIVED" },
+  })
 
   revalidatePath("/admin/articles")
   revalidatePath("/articles")

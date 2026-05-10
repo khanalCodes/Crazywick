@@ -9,6 +9,7 @@ const mainLinks = [
   { href: '/predictions', label: 'Predictions' },
   { href: '/analysis', label: 'Analysis' },
   { href: '/journal', label: 'Journal' },
+  { href: '/about', label: 'About' },       
   { href: '/setups', label: 'Setups', locked: true },
 ]
 

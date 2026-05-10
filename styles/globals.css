@@ -10,12 +10,17 @@
   --text-muted: #6b6b63;
   --text-dim: #aaa9a0;
   --green: #1D9E75;
+  --green-accent: #1D9E75;
   --green-light: #E1F5EE;
   --green-dark: #0F6E56;
   --serif: 'Playfair Display', Georgia, serif;
   --sans: 'DM Sans', system-ui, sans-serif;
   --radius: 10px;
   --radius-sm: 6px;
+   --card-bg: #f7f6f3;   
+  --red: #E24B4A;
+  --text-primary: #1a1a18;          
+--green-light-border: #c3e9d8;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -96,4 +101,64 @@ h1, h2, h3, h4 { font-family: var(--serif); font-weight: 700; line-height: 1.2; 
 
 @media (max-width: 768px) {
   .analysis-grid { grid-template-columns: 1fr !important; }
+}
+
+/* Article row hover */
+.article-row:hover h2 {
+  color: var(--green-accent);
+  transition: color 0.15s;
+}
+.article-row > div {
+  transition: opacity 0.15s;
+}
+.article-row:hover > div {
+  opacity: 0.85;
+}
+
+/* Analysis card hover */
+.analysis-card > div {
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.analysis-card:hover > div {
+  border-color: var(--green-accent);
+  box-shadow: 0 4px 20px rgba(29,158,117,0.08);
+}
+
+/* Google sign-in button hover */
+.btn-google:hover {
+  background: #f8f8f8 !important;
+  border-color: rgba(0,0,0,0.15) !important;
+}
+
+.article-row:hover h2 {
+  color: var(--green-accent);
+  transition: color 0.15s;
+}
+.article-row > div {
+  transition: opacity 0.15s;
+}
+.article-row:hover > div {
+  opacity: 0.85;
+}
+
+/* Analysis card hover */
+.analysis-card > div {
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.analysis-card:hover > div {
+  border-color: var(--green-accent);
+  box-shadow: 0 4px 20px rgba(29,158,117,0.08);
+}
+
+/* Google sign-in button hover */
+.btn-google:hover {
+  background: #f8f8f8 !important;
+  border-color: rgba(0,0,0,0.15) !important;
+}
+
+.prediction-card:hover {
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+.prediction-card {
+  transition: box-shadow 0.15s;
 }

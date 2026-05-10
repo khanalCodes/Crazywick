@@ -3,8 +3,10 @@ import Script from 'next/script'
 import '../styles/globals.css'
 import Navbar from '@/components/Navbar'
 import TickerTape from '@/components/TickerTape'
+import SessionWrapper from '@/components/SessionWrapper'
 
 export const metadata: Metadata = {
+    metadataBase: new URL('https://crazywick.com'), 
   title: 'CrazyWick — Financial Intelligence',
   description: 'Deep-dive articles, market predictions, and geopolitical analysis from Kathmandu.',
   icons: {
@@ -42,46 +44,52 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
           strategy="afterInteractive"
         />
-
         <Script id="ga4" strategy="afterInteractive">
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             window.gtag = gtag;
-
             gtag('js', new Date());
-
             gtag('config', '${GA_ID}', {
-  page_path: window.location.pathname,
-  send_page_view: true,
-});
+              page_path: window.location.pathname,
+              send_page_view: true,
+            });
           `}
         </Script>
 
-        <div aria-hidden="true">
-          <TickerTape />
-        </div>
+        <SessionWrapper>
+          <div aria-hidden="true">
+            <TickerTape />
+          </div>
 
-        <Navbar />
-        <main>{children}</main>
+          <Navbar />
+          <main>{children}</main>
 
-        <footer style={{
-          borderTop: '1px solid rgba(0,0,0,0.08)',
-          padding: '2.5rem 2rem',
-          textAlign: 'center',
-          color: '#aaa9a0',
-          fontSize: '13px',
-          marginTop: '6rem',
-          background: '#f7f6f3',
-        }}>
-          <p style={{ marginBottom: '0.5rem', fontFamily: 'var(--serif)', fontSize: '18px', color: '#1a1a18' }}>
-            crazy<span style={{ color: '#1D9E75' }}>wick</span>
-          </p>
-          <p>© {new Date().getFullYear()} CrazyWick. Financial intelligence from Kathmandu.</p>
-          <p style={{ marginTop: '0.5rem', fontSize: '11px', color: '#bbb' }}>
-            Not financial advice. Educational content only.
-          </p>
-        </footer>
+          <footer style={{
+            borderTop: '1px solid rgba(0,0,0,0.08)',
+            padding: '2.5rem 2rem',
+            textAlign: 'center',
+            color: '#aaa9a0',
+            fontSize: '13px',
+            marginTop: '6rem',
+            background: '#f7f6f3',
+          }}>
+            <p style={{ marginBottom: '0.5rem', fontFamily: 'var(--serif)', fontSize: '18px', color: '#1a1a18' }}>
+              crazy<span style={{ color: '#1D9E75' }}>wick</span>
+            </p>
+            <p>© {new Date().getFullYear()} CrazyWick. Financial intelligence from Kathmandu.</p>
+            <p style={{ marginTop: '0.75rem' }}>
+              
+                <a href="mailto:contact@crazywick.com"
+style={{ color: '#6b6b63', textDecoration: 'none', fontWeight: '500' }}              >
+                contact@crazywick.com
+              </a>
+            </p>
+            <p style={{ marginTop: '0.5rem', fontSize: '11px', color: '#bbb' }}>
+              Not financial advice. Educational content only.
+            </p>
+          </footer>
+        </SessionWrapper>
 
       </body>
     </html>

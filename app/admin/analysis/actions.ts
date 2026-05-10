@@ -1,50 +1,69 @@
-'use server'
+"use server"
 
-import { prisma } from '@/lib/prisma'
-import { auth } from '@/auth'
-import { revalidatePath } from 'next/cache'
-import { redirect } from 'next/navigation'
+import { prisma } from "@/lib/prisma"
+import { auth } from "@/auth"
+import { redirect } from "next/navigation"
+import { AnalysisBias } from "@prisma/client"
+
+const parseJsonField = (raw: string | null) => {
+  if (!raw?.trim()) return []
+  try { return JSON.parse(raw) } catch { return raw.split(",").map((s: string) => s.trim()).filter(Boolean) }
+}
 
 export async function createAnalysis(formData: FormData) {
   const session = await auth()
-  if (!session || session.user.role !== 'ADMIN') throw new Error('Unauthorized')
-
-  const asset = formData.get('asset') as string
-  const symbol = formData.get('symbol') as string
-  const bias = formData.get('bias') as string
-  const thesis = formData.get('thesis') as string
-  const watchFor = formData.get('watchFor') as string
-  const imageUrl = formData.get('imageUrl') as string
-  const supportLevels = (formData.get('supportLevels') as string).split(',').map(s => s.trim()).filter(Boolean)
-  const resistanceLevels = (formData.get('resistanceLevels') as string).split(',').map(s => s.trim()).filter(Boolean)
-
-  const user = await prisma.user.upsert({
-    where: { email: session.user.email! },
-    update: {},
-    create: {
-      email: session.user.email!,
-      name: session.user.name ?? null,
-      image: session.user.image ?? null,
-      role: 'ADMIN',
-    },
-  })
+  if (!session?.user?.id) redirect("/login")
 
   await prisma.analysis.create({
     data: {
-      asset,
-      symbol,
-      bias: bias as any,
-      thesis,
-      watchFor: watchFor || null,
-      imageUrl: imageUrl || null,
-      supportLevels,
-      resistanceLevels,
-      authorId: user.id,
-      isPublic: true,
+      authorId: session.user.id,
+      asset: (formData.get("asset") as string).trim(),
+      symbol: (formData.get("symbol") as string).trim().toUpperCase(),
+      bias: formData.get("bias") as AnalysisBias,
+      thesis: (formData.get("thesis") as string).trim(),
+      watchFor: (formData.get("watchFor") as string)?.trim() || null,
+      imageUrl: (formData.get("imageUrl") as string)?.trim() || null,
+      supportLevels: parseJsonField(formData.get("supportLevels") as string),
+      resistanceLevels: parseJsonField(formData.get("resistanceLevels") as string),
+      keyLevels: parseJsonField(formData.get("keyLevels") as string),
+      isPublic: formData.get("isPublic") === "true",
     },
   })
 
-  revalidatePath('/admin/analysis')
-  revalidatePath('/analysis')
-  redirect('/admin/analysis')
+  redirect("/admin/analysis")
+}
+
+export async function updateAnalysis(id: string, formData: FormData) {
+  const session = await auth()
+  if (!session?.user?.id) redirect("/login")
+
+  await prisma.analysis.update({
+    where: { id },
+    data: {
+      asset: (formData.get("asset") as string).trim(),
+      symbol: (formData.get("symbol") as string).trim().toUpperCase(),
+      bias: formData.get("bias") as AnalysisBias,
+      thesis: (formData.get("thesis") as string).trim(),
+      watchFor: (formData.get("watchFor") as string)?.trim() || null,
+      imageUrl: (formData.get("imageUrl") as string)?.trim() || null,
+      supportLevels: parseJsonField(formData.get("supportLevels") as string),
+      resistanceLevels: parseJsonField(formData.get("resistanceLevels") as string),
+      keyLevels: parseJsonField(formData.get("keyLevels") as string),
+      isPublic: formData.get("isPublic") === "true",
+    },
+  })
+
+  redirect("/admin/analysis")
+}
+
+export async function deleteAnalysis(id: string) {
+  const session = await auth()
+  if (!session?.user?.id) redirect("/login")
+
+  await prisma.analysis.update({
+    where: { id },
+    data: { deletedAt: new Date() },
+  })
+
+  redirect("/admin/analysis")
 }

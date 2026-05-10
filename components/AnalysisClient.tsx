@@ -24,7 +24,26 @@ const BIAS_CONFIG: Record<string, { label: string; color: string; bg: string; bo
 }
 
 export default function AnalysisClient({ analyses }: { analyses: Analysis[] }) {
-  const [selected, setSelected] = useState(analyses[0])
+  const [selected, setSelected] = useState<Analysis | null>(analyses[0] ?? null)
+
+  if (!selected) {
+    return (
+      <div style={{
+        padding: '64px 24px', textAlign: 'center',
+        border: '1px solid rgba(0,0,0,0.08)', borderRadius: '14px',
+        background: '#f7f6f3',
+      }}>
+        <p style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>📊</p>
+        <p style={{ fontFamily: 'var(--sans)', fontSize: '15px', fontWeight: 600, color: '#1a1a18', marginBottom: '6px' }}>
+          No analyses yet
+        </p>
+        <p style={{ fontFamily: 'var(--sans)', fontSize: '13px', color: '#aaa9a0' }}>
+          Add your first analysis from the admin panel.
+        </p>
+      </div>
+    )
+  }
+
   const bias = BIAS_CONFIG[selected.bias] ?? BIAS_CONFIG.NEUTRAL
 
   return (
