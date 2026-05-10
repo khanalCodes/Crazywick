@@ -1,10 +1,13 @@
 "use client"
 
 import { signIn } from "next-auth/react"
-import { useState } from "react"
+import { useSearchParams } from "next/navigation"
+import { useState, Suspense } from "react"
 
-export default function LoginPage() {
+function LoginContent() {
   const [loading, setLoading] = useState(false)
+  const searchParams = useSearchParams()
+  const error = searchParams.get("error")
 
   const handleGoogleSignIn = async () => {
     setLoading(true)
@@ -21,27 +24,29 @@ export default function LoginPage() {
           Admin access only
         </p>
 
+        {error && (
+          <div style={{
+            background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 8,
+            padding: "12px 16px", marginBottom: 24,
+            color: "#E24B4A", fontSize: 13, fontFamily: "DM Sans, sans-serif",
+          }}>
+            {error === "AccessDenied"
+              ? "Access denied. This Google account is not authorised."
+              : "Something went wrong. Please try again."}
+          </div>
+        )}
+
         <button
           onClick={handleGoogleSignIn}
           disabled={loading}
           className="btn-google"
           style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: 12,
-            width: "100%",
-            padding: "14px 20px",
-            borderRadius: 10,
-            border: "1px solid var(--border)",
-            background: "#fff",
-            color: "#1a1a18",
-            fontSize: 15,
-            fontFamily: "DM Sans, sans-serif",
-            fontWeight: 500,
-            cursor: loading ? "not-allowed" : "pointer",
-            opacity: loading ? 0.7 : 1,
-            transition: "all 0.15s",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            gap: 12, width: "100%", padding: "14px 20px", borderRadius: 10,
+            border: "1px solid var(--border)", background: "#fff",
+            color: "#1a1a18", fontSize: 15, fontFamily: "DM Sans, sans-serif",
+            fontWeight: 500, cursor: loading ? "not-allowed" : "pointer",
+            opacity: loading ? 0.7 : 1, transition: "all 0.15s",
           }}
         >
           <svg width="20" height="20" viewBox="0 0 24 24">
@@ -54,5 +59,13 @@ export default function LoginPage() {
         </button>
       </div>
     </main>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginContent />
+    </Suspense>
   )
 }
