@@ -11,7 +11,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       authorization: {
         url: "https://accounts.google.com/o/oauth2/v2/auth",
         params: {
-          prompt: "select_account",
           hd: "*",
         },
       },
