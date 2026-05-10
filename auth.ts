@@ -1,6 +1,5 @@
 import NextAuth from "next-auth"
 import Google from "next-auth/providers/google"
-import { prisma } from "@/lib/prisma"
 
 const ADMIN_EMAIL = "khanalmanish984@gmail.com"
 
@@ -9,6 +8,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      authorization: {
+        params: {
+          prompt: "select_account",
+        },
+      },
     }),
   ],
 
