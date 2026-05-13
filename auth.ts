@@ -1,7 +1,10 @@
 import NextAuth from "next-auth"
 import Google from "next-auth/providers/google"
 
-const ADMIN_EMAIL = "khanalmanish984@gmail.com"
+const ADMIN_EMAILS = [
+  "khanalmanish984@gmail.com",
+  "sakarkhatiwada2060",
+];
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
@@ -21,9 +24,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   callbacks: {
-    async signIn({ user }) {
-      return user.email === ADMIN_EMAIL
-    },
+  async signIn({ user }) {
+  const email = user.email ?? "";
+
+  return ADMIN_EMAILS.includes(email);
+},
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id ?? token.sub ?? ""
