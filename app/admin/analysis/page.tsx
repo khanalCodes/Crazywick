@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma"
 import Link from "next/link"
 import { deleteAnalysis } from "./actions"
+import DeleteAnalysisButton from "@/components/DeleteAnalysisButton"
 
 const BIAS_COLORS: Record<string, { bg: string; color: string }> = {
   BULLISH:          { bg: "#f0faf6", color: "#1D9E75" },
@@ -80,20 +81,7 @@ export default async function AdminAnalysisPage() {
                   }}>
                     Edit
                   </Link>
-                  <form action={deleteWithId}>
-                    <button
-                      type="submit"
-                      style={{
-                        padding: "7px 14px", borderRadius: 7,
-                        border: "1px solid rgba(226,75,74,0.3)",
-                        background: "#fef0f0", color: "#E24B4A",
-                        fontSize: 13, cursor: "pointer", fontFamily: "DM Sans, sans-serif",
-                      }}
-                      onClick={(e) => { if (!confirm("Delete this analysis?")) e.preventDefault() }}
-                    >
-                      Delete
-                    </button>
-                  </form>
+                  <DeleteAnalysisButton action={deleteWithId} />
                 </div>
               </div>
             )

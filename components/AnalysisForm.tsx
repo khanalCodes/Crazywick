@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useTransition } from "react"
 
 const BIAS_OPTIONS = [
   { value: "BULLISH",          label: "Bullish",          color: "#1D9E75" },
@@ -32,6 +32,7 @@ export default function AnalysisForm({ action, initial = {} }: Props) {
   const [imagePreview, setImagePreview] = useState(initial.imageUrl ?? "")
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState("")
+  const [isPending, startTransition] = useTransition()
   const fileRef = useRef<HTMLInputElement>(null)
 
   const handleImageUpload = async (file: File) => {
@@ -47,8 +48,14 @@ export default function AnalysisForm({ action, initial = {} }: Props) {
     setImagePreview(data.url)
   }
 
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    const formData = new FormData(e.currentTarget)
+    startTransition(() => { action(formData) })
+  }
+
   return (
-    <form action={action} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+    <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
       <input type="hidden" name="imageUrl" value={imageUrl} />
       <input type="hidden" name="bias" value={bias} />
 
@@ -179,9 +186,13 @@ export default function AnalysisForm({ action, initial = {} }: Props) {
       </div>
 
       <div style={{ display: "flex", gap: 12, paddingTop: 8 }}>
-        <button type="submit"
-          style={{ backgroundColor: "#1D9E75", color: "#fff", padding: "12px 28px", border: "none", borderRadius: 8, fontSize: 15, fontWeight: 500, cursor: "pointer" }}>
-          Save Analysis
+        <button type="submit" disabled={isPending} style={{
+          backgroundColor: "#1D9E75", color: "#fff", padding: "12px 28px",
+          border: "none", borderRadius: 8, fontSize: 15, fontWeight: 500,
+          cursor: isPending ? "not-allowed" : "pointer", opacity: isPending ? 0.7 : 1,
+          fontFamily: "DM Sans, sans-serif",
+        }}>
+          {isPending ? "Saving…" : "Save Analysis"}
         </button>
         <a href="/admin/analysis" style={{ padding: "12px 20px", color: "#6b6b63", fontSize: 14, textDecoration: "none" }}>Cancel</a>
       </div>

@@ -6,11 +6,26 @@ export const metadata = {
   description: "Technical analysis, bias, key levels, and chart breakdowns.",
 }
 
+type RawAnalysis = Awaited<ReturnType<typeof prisma.analysis.findMany>>[number]
+
+const toArray = (val: unknown): string[] => {
+  if (Array.isArray(val)) return val.map(String)
+  if (typeof val === "string") return val.split(",").map((s: string) => s.trim()).filter(Boolean)
+  return []
+}
+
 export default async function AnalysisPage() {
-  const analyses = await prisma.analysis.findMany({
+  const raw = await prisma.analysis.findMany({
     where: { deletedAt: null, isPublic: true },
     orderBy: { createdAt: "desc" },
   })
+
+  const analyses = raw.map((a: RawAnalysis) => ({
+    ...a,
+    createdAt: a.createdAt.toISOString(),
+    supportLevels: toArray(a.supportLevels),
+    resistanceLevels: toArray(a.resistanceLevels),
+  }))
 
   return <AnalysisClient analyses={analyses} />
 }

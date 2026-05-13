@@ -1,5 +1,6 @@
-import { auth, signOut } from "@/auth"
+import { auth } from "@/auth"
 import { redirect } from "next/navigation"
+import LogoutButton from "@/components/LogoutButton"
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const session = await auth()
@@ -44,17 +45,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
         <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
           <span style={{ fontSize: "13px", color: "#aaa9a0" }}>{session.user.email}</span>
-          <form action={async () => { "use server"; await signOut({ redirectTo: "/login" }) }}>
-            <button type="submit" style={{
-              fontSize: "13px", fontWeight: 500,
-              color: "#E24B4A", background: "#fef2f2",
-              border: "1px solid #fecaca", borderRadius: "6px",
-              padding: "5px 12px", cursor: "pointer",
-              fontFamily: "DM Sans, sans-serif",
-            }}>
-              Logout
-            </button>
-          </form>
+          <LogoutButton />
         </div>
       </div>
 
